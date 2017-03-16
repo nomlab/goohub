@@ -10,6 +10,7 @@ if File.exists?(gemfile + ".lock")
 end
 
 require "clian"
+require "goohub"
 Clian::Cli.bundler_rbenv_setup(__FILE__)
 
 Encoding.default_external="UTF-8"
