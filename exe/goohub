@@ -39,24 +39,12 @@ class GoohubCLI < Clian::Cli
       STDERR.print "ERROR: try goohub init command.\n"
       exit(1)
     end
-
-    config = @config.general
-    @authorizer = Clian::Authorizer.new(config.client_id,
-                                        config.client_secret,
-                                        "https://www.googleapis.com/auth/calendar",
-                                        config.token_store_path)
-
-    @credentials = @authorizer.credentials(config.default_user)
   end
 
   def client
     begin
-      cl = Google::Apis::CalendarV3::CalendarService.new
-      cl.client_options.application_name = "goohub"
-      cl.authorization = @credentials
-      cl.authorization.refresh!
-      return cl
-    rescue
+      @client ||= Goohub::Client.new(@config.general, "goohub")
+    rescue Goohub::Client::AuthorizationError
       STDERR.print "ERROR: try goohub auth command.\n"
       exit(1)
     end
