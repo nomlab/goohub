@@ -4,3 +4,5 @@ dir = File.dirname(__FILE__) + "/command"
 # create profile.rb in command/
 # and add `require` here like:
 #    require "#{dir}/profile.rb"
+
+require "#{dir}/init.rb"
