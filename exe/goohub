@@ -9,6 +9,10 @@ if File.exists?(gemfile + ".lock")
   require "bundler/setup"
 end
 
+require 'googleauth'
+require 'googleauth/stores/file_token_store'
+require 'google/api_client/client_secrets'
+require 'google/apis/calendar_v3'
 require "clian"
 require "goohub"
 Clian::Cli.bundler_rbenv_setup(__FILE__)
@@ -17,6 +21,39 @@ Encoding.default_external="UTF-8"
 
 class GoohubCLI < Clian::Cli
   package_name 'GOOHUB'
+
+  private
+
+  def setup_global_options
+    begin
+      @config = Goohub::Config.create_from_file(options[:config] ||
+                                                CONFIG_PATH)
+    rescue
+      STDERR.print "ERROR: try goohub init command.\n"
+      exit(1)
+    end
+
+    config = @config.general
+    @authorizer = Clian::Authorizer.new(config.client_id,
+                                        config.client_secret,
+                                        "https://www.googleapis.com/auth/calendar",
+                                        config.token_store_path)
+
+    @credentials = @authorizer.credentials(config.default_user)
+  end
+
+  def client
+    begin
+      cl = Google::Apis::CalendarV3::CalendarService.new
+      cl.client_options.application_name = "goohub"
+      cl.authorization = @credentials
+      cl.authorization.refresh!
+      return cl
+    rescue
+      STDERR.print "ERROR: try goohub auth command.\n"
+      exit(1)
+    end
+  end
 end
 
 GoohubCLI.start(ARGV)
