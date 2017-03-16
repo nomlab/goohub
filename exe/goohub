@@ -15,6 +15,8 @@ require 'google/api_client/client_secrets'
 require 'google/apis/calendar_v3'
 require "clian"
 require "goohub"
+require 'goohub/command'
+
 Clian::Cli.bundler_rbenv_setup(__FILE__)
 
 Encoding.default_external="UTF-8"
