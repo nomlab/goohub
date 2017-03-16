@@ -7,3 +7,5 @@ dir = File.dirname(__FILE__) + "/command"
 
 require "#{dir}/init.rb"
 require "#{dir}/auth.rb"
+require "#{dir}/calendars.rb"
+require "#{dir}/get_event.rb"
