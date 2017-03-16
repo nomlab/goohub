@@ -22,6 +22,11 @@ Encoding.default_external="UTF-8"
 class GoohubCLI < Clian::Cli
   package_name 'GOOHUB'
 
+  Signal.trap(:INT){
+    Thor.new.say "Interrupted quit.", :red
+    exit(0)
+  }
+
   private
 
   def setup_global_options
