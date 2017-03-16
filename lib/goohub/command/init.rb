@@ -4,7 +4,7 @@ class GoohubCLI < Clian::Cli
     ################################################################
     desc "init", "Create new config file"
 
-    method_option :config,  :desc => "Set config path (default: #{CONFIG_PATH})", :banner => "FILE"
+    expand_option :config
 
     def init
       config_file = options[:config] || CONFIG_PATH
