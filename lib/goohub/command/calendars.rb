@@ -4,7 +4,8 @@ class GoohubCLI < Clian::Cli
   def calendars
     calendars = client.list_calendar_lists()
     calendars.items.each do |c|
-      puts "#{c.summary}(#{c.id})"
+      calendar = Goohub::Resource::Calendar.new(c)
+      puts "#{calendar.summary} (#{calendar.id})"
     end
   end
 end
