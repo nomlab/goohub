@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require "rubygems"
+
+gemfile = File.expand_path("../../Gemfile", __FILE__)
+
+if File.exists?(gemfile + ".lock")
+  ENV["BUNDLE_GEMFILE"] = gemfile
+  require "bundler/setup"
+end
+
+require "clian"
+Clian::Cli.bundler_rbenv_setup(__FILE__)
+
+Encoding.default_external="UTF-8"
+
+class GoohubCLI < Clian::Cli
+  package_name 'GOOHUB'
+end
+
+GoohubCLI.start(ARGV)
