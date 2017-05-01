@@ -14,5 +14,6 @@ module Goohub
 
     autoload :Event,             "#{dir}/event.rb"
     autoload :Calendar,          "#{dir}/calendar.rb"
+    autoload :Events,            "#{dir}/events.rb"
   end # module Resource
 end # module Goohub
