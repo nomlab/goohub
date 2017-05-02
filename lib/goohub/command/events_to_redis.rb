@@ -14,7 +14,7 @@ class GoohubCLI < Clian::Cli
     raw_resource = client.list_events(calendar_id, time_max: max, time_min: min, single_events: true)
     events = Goohub::Resource::Events.new(raw_resource)
 
-    redis = Redis.new
-    puts redis.set(params.join("-"), events.to_h.to_json)
+    redis = Goohub::DataStore::RedisStore.new
+    puts redis.store(params.join("-"), events.to_h.to_json)
   end
 end
