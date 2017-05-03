@@ -26,8 +26,9 @@ module Goohub
 
     dir = File.dirname(__FILE__) + "/resource"
 
-    autoload :Event,             "#{dir}/event.rb"
-    autoload :Calendar,          "#{dir}/calendar.rb"
-    autoload :EventCollection,   "#{dir}/event_collection.rb"
+    autoload :Event,                "#{dir}/event.rb"
+    autoload :Calendar,             "#{dir}/calendar.rb"
+    autoload :EventCollection,      "#{dir}/event_collection.rb"
+    autoload :CalendarCollection,   "#{dir}/calendar_collection.rb"
   end # module Resource
 end # module Goohub
