@@ -1,5 +1,13 @@
 module Goohub
   module DataStore
+    def self.create(type, options = {})
+      if type == :redis
+        return Goohub::DataStore::RedisStore.new(options)
+      else
+        raise 'Does Not exists #{type} for DataStore'
+      end
+    end
+
     class Base
       # Load the value from data store for the given key
       def load(key)
