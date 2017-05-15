@@ -5,8 +5,9 @@ class GoohubCLI < Clian::Cli
   desc "events CALENDAR_ID", "Show events found by CALENDAR_ID"
 
   def events(calendar_id)
-    events =  client.list_events(calendar_id)
-    events.items.each do |item|
+    raw_resource = client.list_events(calendar_id)
+    events = Goohub::Resource::EventCollection.new(raw_resource)
+    events.each do |item|
       puts item.summary.to_s + "(" + item.id.to_s + ")"
     end
   end
