@@ -1,3 +1,4 @@
+require 'redis'
 module Goohub
   module DataStore
     class RedisStore < Base
