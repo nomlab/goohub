@@ -7,4 +7,5 @@ module Goohub
   autoload :VERSION,              "#{dir}/version.rb"
   autoload :Resource,             "#{dir}/resource.rb"
   autoload :DataStore,            "#{dir}/datastore.rb"
+  autoload :DateFrame,            "#{dir}/date_frame.rb"
 end
