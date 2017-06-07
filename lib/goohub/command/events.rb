@@ -4,8 +4,9 @@ class GoohubCLI < Clian::Cli
   ################################################################
   desc "events CALENDAR_ID START END", "get and store events between START(year-month) and END(year-month) found by CALENDAR_ID"
   option :kvs
+  option :end, :desc => "specify end month of range (year-month)"
 
-  def events(calendar_id, start_m, end_m)
+  def events(calendar_id, start_date)
     start = Goohub::DateFrame::Monthly.new(start_date)
     if options[:end]
       end_date = options[:end]
