@@ -14,11 +14,11 @@ class GoohubCLI < Clian::Cli
       now = Date.today
       end_date = "#{now.year}-#{now.month}"
     end
-    start.each_to(end_date) do |frames|
+    start.each_to(end_date) do |frame|
 
-      min = frames[0].to_s
-      max = frames[1].to_s
-      params = [calendar_id, frames[0].year.to_s, frames[0].month.to_s]
+      min = frame.to_s
+      max = (frame.next_month - Rational(1, 24 * 60 * 60)).to_s # Calculate end of frame for Google Calendar API
+      params = [calendar_id, frame.year.to_s, frame.month.to_s]
       puts "Get events of "+ params[1] + "-" + params[2]
       raw_resource = client.list_events(params[0], time_max: max, time_min: min, single_events: true)
       events = Goohub::Resource::EventCollection.new(raw_resource)
