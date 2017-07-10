@@ -17,6 +17,14 @@ module Goohub
       def delete(key)
         @redis.del(key)
       end
+
+      def [](key)
+        load(key)
+      end
+
+      def []=(key, value)
+        store(key, value)
+      end
     end # class RedisStore
   end # module DataStore
 end # module Goohub
