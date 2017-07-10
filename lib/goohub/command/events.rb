@@ -5,6 +5,9 @@ class GoohubCLI < Clian::Cli
   desc "events CALENDAR_ID START", "get and store events between START(year-month) found by CALENDAR_ID"
   option :end, :desc => "specify end month of range (year-month)"
   option :output, :default => "stdout", :desc => "specify output destination (stdout or redis)"
+  option :host, :desc => "hostname or IP of database"
+  option :port, :desc => "port of database"
+  option :db, :desc => "name of database"
 
   def events(calendar_id, start_date)
     start = Goohub::DateFrame::Monthly.new(start_date)
@@ -30,7 +33,7 @@ class GoohubCLI < Clian::Cli
       else
         puts "Store events to " + options[:output]
         print "Status: "
-        kvs = Goohub::DataStore.create(options[:output].intern)
+        kvs = Goohub::DataStore.create(options[:output].intern, {:host => options[:host], :port => options[:port].to_i, :db => options[:db].to_i})
         puts kvs.store(params.join('-'), events.to_json)
       end
     end
