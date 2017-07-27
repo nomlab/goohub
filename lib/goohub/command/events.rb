@@ -4,10 +4,7 @@ class GoohubCLI < Clian::Cli
   ################################################################
   desc "events CALENDAR_ID START", "get and store events between START(year-month) found by CALENDAR_ID"
   option :end, :desc => "specify end month of range (year-month)"
-  option :output, :default => "stdout", :desc => "specify output destination (stdout or redis)"
-  option :host, :desc => "hostname or IP of database"
-  option :port, :desc => "port of database"
-  option :db, :desc => "name of database"
+  option :output, :default => "stdout", :desc => "specify output destination (stdout or redis:host:port:name)"
 
   def events(calendar_id, start_date)
     start = Goohub::DateFrame::Monthly.new(start_date)
@@ -17,6 +14,14 @@ class GoohubCLI < Clian::Cli
       now = Date.today
       end_date = "#{now.year}-#{now.month}"
     end
+
+    output, host, port, db_name = options[:output].split(":")
+    if output != "stdout" and (!host or !port or !db_name)
+      puts 'ERROR: "goohub events" was called with missing arguments for outputs'
+      puts 'USAGE: If you want to store events to some kvs, you should set "kvs_name:hostname:port:db_name" to output'
+      exit
+    end
+
     start.each_to(end_date) do |frame|
 
       min = frame.to_s
@@ -26,14 +31,14 @@ class GoohubCLI < Clian::Cli
       raw_resource = client.list_events(params[0], time_max: max, time_min: min, single_events: true)
       events = Goohub::Resource::EventCollection.new(raw_resource)
 
-      if options[:output] == "stdout"
+      if output == "stdout"
         events.each do |item|
           puts item.summary.to_s + "(" + item.id.to_s + ")"
         end
       else
-        puts "Store events to " + options[:output]
+        puts "Store events to " + output
         print "Status: "
-        kvs = Goohub::DataStore.create(options[:output].intern, {:host => options[:host], :port => options[:port].to_i, :db => options[:db].to_i})
+        kvs = Goohub::DataStore.create(output.intern, {:host => host, :port => port.to_i, :db => db_name.to_i})
         puts kvs.store(params.join('-'), events.to_json)
       end
     end
