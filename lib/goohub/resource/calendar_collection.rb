@@ -7,6 +7,10 @@ module Goohub
         end
       end
 
+      def to_json
+        @raw_resources.to_h.to_json
+      end
+
       def dump
         @raw_resources
       end

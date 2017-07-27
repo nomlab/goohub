@@ -1,11 +1,27 @@
 class GoohubCLI < Clian::Cli
   desc "calendars", "List calendars"
+  option :output, :default => "stdout", :desc => "specify output destination (stdout or redis:host:port:name)"
 
   def calendars
     raw_resource = client.list_calendar_lists()
     calendars = Goohub::Resource::CalendarCollection.new(raw_resource)
-    calendars.each do |c|
-      puts "#{c.summary} (#{c.id})"
+
+    output, host, port, db_name = options[:output].split(":")
+    if output != "stdout" and (!host or !port or !db_name)
+      puts 'ERROR: "goohub events" was called with missing arguments for outputs'
+      puts 'USAGE: If you want to store calendars_list to some kvs, you should set "kvs_name:hostname:port:db_name" to output'
+      exit
+    end
+
+    if output == "stdout"
+      calendars.each do |item|
+        puts item.summary.to_s + "(" + item.id.to_s + ")"
+      end
+    else
+      puts "Store calendars_list to " + output
+      print "Status: "
+      kvs = Goohub::DataStore.create(output.intern, {:host => host, :port => port.to_i, :db => db_name.to_i})
+      puts kvs.store("calendars", calendars.to_json)
     end
   end
 end
