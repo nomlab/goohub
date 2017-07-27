@@ -18,12 +18,12 @@ module Goohub
         @redis.del(key)
       end
 
-      def [](key)
-        load(key)
+      def keys
+        self.glob('*')
       end
 
-      def []=(key, value)
-        store(key, value)
+      def glob(pattern)
+        @redis.keys(pattern)
       end
     end # class RedisStore
   end # module DataStore

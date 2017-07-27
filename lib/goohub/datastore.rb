@@ -9,6 +9,8 @@ module Goohub
     end
 
     class Base
+      include Enumerable
+
       # Load the value from data store for the given key
       def load(key)
         raise 'Not implemented'
@@ -22,6 +24,28 @@ module Goohub
       # Remove the value from data store for the given key
       def delete(key)
         raise 'Not implemented'
+      end
+
+      def keys
+        raise 'Not implemented'
+      end
+
+      def values
+        keys.map {|key| load(key)}
+      end
+
+      def each(&block)
+        self.keys.each do |key|
+          yield key, self.load(key)
+        end
+      end
+
+      def [](key)
+        load(key)
+      end
+
+      def []=(key, value)
+        store(key, value)
       end
     end # class Base
 
