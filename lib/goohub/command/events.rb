@@ -4,7 +4,7 @@ class GoohubCLI < Clian::Cli
   ################################################################
   desc "events CALENDAR_ID START", "get and store events between START(year-month) found by CALENDAR_ID"
   option :end, :desc => "specify end month of range (year-month)"
-  option :output, :default => "stdout", :desc => "specify output destination (stdout or redis:host:port:name)"
+  option :output, :default => "stdout", :desc => "specify output destination (stdout or redis:host[Default:localhost]:port[Default:6379]:name[Default:0])"
 
   def events(calendar_id, start_date)
     start = Goohub::DateFrame::Monthly.new(start_date)
@@ -16,12 +16,27 @@ class GoohubCLI < Clian::Cli
     end
 
     output, host, port, db_name = options[:output].split(":")
-    if output != "stdout" and (!host or !port or !db_name)
-      puts 'ERROR: "goohub events" was called with missing arguments for outputs'
-      puts 'USAGE: If you want to store events to some kvs, you should set "kvs_name:hostname:port:db_name" to output'
-      exit
-    end
+    if output and (output != "stdout" or output != "")
+      if !host or host == ""
+        host = "localhost"
+      end
+      if !port or port == ""
+        port = "6379"
+      end
+      if !db_name or db_name == ""
+        db_name = "0"
+      end
 
+      puts "output: #{output}"
+      puts "host: #{host}"
+      puts "port: #{port}"
+      puts "db_name: #{db_name}"
+    else
+      output = "stdout"
+
+      puts "output: #{output}"
+    end
+    puts "----------------------------"
     start.each_to(end_date) do |frame|
 
       min = frame.to_s
