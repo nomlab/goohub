@@ -2,21 +2,22 @@ class GoohubCLI < Clian::Cli
   ################################################################
   # Command: events
   ################################################################
-  desc "events CALENDAR_ID START", "get and store events between START(year-month) found by CALENDAR_ID"
-  option :end, :desc => "specify end month of range (year-month)"
-  option :output, :default => "stdout", :desc => "specify output destination (stdout or redis:host[Default:localhost]:port[Default:6379]:name[Default:0])"
+  desc "events CALENDAR_ID START_MONTH ( END_MONTH )", "gets and stores events between START_MONTH ( and END_MONTH ) found by CALENDAR_ID"
+  option :output, :default => "stdout", :desc => "specify output destination ( stdout or redis:host:port:name )"
+  long_desc <<-LONGDESC
+    `goohub events` gets and stores events between START_MONTH ( and END_MONTH ) found by CALENDAR_ID
 
-  def events(calendar_id, start_date)
-    start = Goohub::DateFrame::Monthly.new(start_date)
-    if options[:end]
-      end_date = options[:end]
-    else
-      now = Date.today
-      end_date = "#{now.year}-#{now.month}"
-    end
+    When output is "redis", if other parameter( host or port or name ) is not set,
 
+    host: "localhost", port: "6379", name: "0" is set by default.
+  LONGDESC
+
+  def events(calendar_id, start_month, end_month="#{Date.today.year}-#{Date.today.month}")
+    start = Goohub::DateFrame::Monthly.new(start_month)
     output, host, port, db_name = options[:output].split(":")
-    if output and (output != "stdout" or output != "")
+
+    puts "output: #{output}"
+    if output != "stdout"
       if !host or host == ""
         host = "localhost"
       end
@@ -27,17 +28,13 @@ class GoohubCLI < Clian::Cli
         db_name = "0"
       end
 
-      puts "output: #{output}"
       puts "host: #{host}"
       puts "port: #{port}"
       puts "db_name: #{db_name}"
-    else
-      output = "stdout"
-
-      puts "output: #{output}"
     end
     puts "----------------------------"
-    start.each_to(end_date) do |frame|
+
+    start.each_to(end_month) do |frame|
 
       min = frame.to_s
       max = (frame.next_month - Rational(1, 24 * 60 * 60)).to_s # Calculate end of frame for Google Calendar API
