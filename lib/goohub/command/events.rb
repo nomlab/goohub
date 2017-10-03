@@ -2,27 +2,39 @@ class GoohubCLI < Clian::Cli
   ################################################################
   # Command: events
   ################################################################
-  desc "events CALENDAR_ID START", "get and store events between START(year-month) found by CALENDAR_ID"
-  option :end, :desc => "specify end month of range (year-month)"
-  option :output, :default => "stdout", :desc => "specify output destination (stdout or redis:host:port:name)"
+  desc "events CALENDAR_ID START_MONTH ( END_MONTH )", "gets and stores events between START_MONTH ( and END_MONTH ) found by CALENDAR_ID"
+  option :output, :default => "stdout", :desc => "specify output destination ( stdout or redis:host:port:name )"
+  long_desc <<-LONGDESC
+    `goohub events` gets and stores events between START_MONTH ( and END_MONTH ) found by CALENDAR_ID
 
-  def events(calendar_id, start_date)
-    start = Goohub::DateFrame::Monthly.new(start_date)
-    if options[:end]
-      end_date = options[:end]
-    else
-      now = Date.today
-      end_date = "#{now.year}-#{now.month}"
-    end
+    When output is "redis", if other parameter( host or port or name ) is not set,
 
+    host: "localhost", port: "6379", name: "0" is set by default.
+  LONGDESC
+
+  def events(calendar_id, start_month, end_month="#{Date.today.year}-#{Date.today.month}")
+    start = Goohub::DateFrame::Monthly.new(start_month)
     output, host, port, db_name = options[:output].split(":")
-    if output != "stdout" and (!host or !port or !db_name)
-      puts 'ERROR: "goohub events" was called with missing arguments for outputs'
-      puts 'USAGE: If you want to store events to some kvs, you should set "kvs_name:hostname:port:db_name" to output'
-      exit
-    end
 
-    start.each_to(end_date) do |frame|
+    puts "output: #{output}"
+    if output != "stdout"
+      if !host or host == ""
+        host = "localhost"
+      end
+      if !port or port == ""
+        port = "6379"
+      end
+      if !db_name or db_name == ""
+        db_name = "0"
+      end
+
+      puts "host: #{host}"
+      puts "port: #{port}"
+      puts "db_name: #{db_name}"
+    end
+    puts "----------------------------"
+
+    start.each_to(end_month) do |frame|
 
       min = frame.to_s
       max = (frame.next_month - Rational(1, 24 * 60 * 60)).to_s # Calculate end of frame for Google Calendar API
