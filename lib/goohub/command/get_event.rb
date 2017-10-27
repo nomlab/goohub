@@ -10,5 +10,6 @@ class GoohubCLI < Clian::Cli
     puts "organized:  #{event.organizer.display_name}\n"
     puts "start_time: #{event.start.date_time}\n"
     puts "end_time:   #{event.end.date_time}\n"
+    puts "location:   #{event.location}\n"
   end
 end
