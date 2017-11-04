@@ -7,9 +7,11 @@ class GoohubCLI < Clian::Cli
   desc "share CALENDAR_ID EVENT_ID FILTER ACTION", "Filtering event by EVENT_ID, and share it by action"
 
   def share(calendar_id, event_id, filter = "location_delete", action = "stdout")
+    @incoming_webhook = ""
     @sentence_items = {}
     @sentence = ""
     @event = client.get_event(calendar_id, event_id)
+    set_incoming_webhook_url
     make_default_sentence_items
     apply_filter(filter)
     make_sentence
@@ -17,6 +19,12 @@ class GoohubCLI < Clian::Cli
   end
 
   private
+
+  def set_incoming_webhook_url
+    settings_file_path = "settings.yml"
+    config = YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
+    @incoming_webhook = ENV['INCOMING_WEBHOOK_URL'] || config["incoming_webhook_url"]
+  end
 
   def make_default_sentence_items
     @sentence_items["summary"] =    @event.summary
@@ -48,12 +56,27 @@ class GoohubCLI < Clian::Cli
 
   def apply_action(action)
     puts @sentence if action == "stdout"
-    post_message(@sentence) if action == "slack"
-    post_event(action.partition(":")[2]) if action.include?("calendar")
+    post_slack(@sentence) if action == "slack"
+    post_calendar(action.partition(":")[2]) if action.include?("calendar")
   end
 
+  def post_slack(string, options = {})
+    payload = options.merge({text: string})
+    uri = URI.parse(@incoming_webhook)
+    res = nil
+    json = payload.to_json
+    request = "payload=" + json
 
-  def post_event(calendar_id)
+    Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      res = http.post(uri.request_uri, request)
+    end
+    puts "Slack post is end, post content is under"
+    puts  @sentence
+    return res
+  end
+
+  def post_calendar(calendar_id)
     event =
       Google::Apis::CalendarV3::Event.new({
                                             summary: @sentence_items["summary"],
