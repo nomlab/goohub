@@ -1,11 +1,44 @@
 #+TITLE: Goohub -- CLI filter for Google calendar
 
-# * Installation
+* Installation
+Goohub requires Ruby 2.3 or newer.
+
 #   #+BEGIN_SRC sh
 
 #   #+END_SRC
 
-# * Setup
+* Setup
 #   #+BEGIN_SRC sh
 
 #   #+END_SRC
+
+* Use with Docker and docker-compose
+
+** For use
+Goohub images are in nomlab/goohub, DockerHub.
+You can build containers from it using docker-compose.yml easily.
+
+#+BEGIN_SRC sh
+$ docker-compose run --rm goohub help
+#+END_SRC
+
+** For development
+You can use Docker for development.
+
+1. Create gem pakage
+
+#+BEGIN_SRC sh
+$ bundle exec rake build
+#+END_SRC
+
+2. Build image from pakage
+
+#+BEGIN_SRC sh
+$ bundle exec rake docker:build
+#+END_SRC
+
+3. Push image to DockerHub
+
+#+BEGIN_SRC sh
+$ bundle exec rake docker:push
+#+END_SRC

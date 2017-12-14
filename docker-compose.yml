@@ -1,0 +1,12 @@
+version: '3'
+services:
+  redis:
+    container_name: redis
+    image: redis
+  goohub:
+    container_name: goohub
+    image: nomlab/goohub
+    links:
+      - redis
+    volumes:
+      - $HOME/.config/goohub:/root/.config/goohub
