@@ -4,16 +4,20 @@ require 'yaml'
 require 'net/https'
 
 class GoohubCLI < Clian::Cli
-  desc "share CALENDAR_ID EVENT_ID FILTER ACTION", "Filtering event by EVENT_ID, and share it by action"
+  desc "share CALENDAR_ID EVENT_ID", "Filtering event by EVENT_ID, and share it by action"
+  option :filter, :default => "no_filter", :desc => "specify filter to apply"
+  option :action, :default => "stdout", :desc => "specify action to apply"
   long_desc <<-LONGDESC
-FILTER is `no_filter`, `summary_delete`, `created_delete`, or `location_delete` (default is `no_filter`)
+FILTER is `no_filter`, `summary_delete`, `created_delete`, or `location_delete`
 
-ACTION is `stdout`, `calendar:POST_CALENDAR_ID`, or `slack` (default is `stdout`)
+ACTION is `stdout`, `calendar:POST_CALENDAR_ID`, or `slack`
 
 If you use `slack` in ACTION, you need get incoming-webhook url and set it in settings.yml
 LONGDESC
 
-  def share(calendar_id, event_id, filter = "no_filter", action = "stdout")
+  def share(calendar_id, event_id)
+    filter = options[:filter]
+    action = options[:action]
     event = client.get_event(calendar_id, event_id)
     parse_event(event)
     apply_filter(filter)
