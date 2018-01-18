@@ -1,6 +1,7 @@
 require 'json'
 require 'uri'
 require 'yaml'
+require 'mail'
 require 'net/https'
 
 class GoohubCLI < Clian::Cli
@@ -10,9 +11,11 @@ class GoohubCLI < Clian::Cli
   long_desc <<-LONGDESC
 FILTER is `no_filter`, `summary_delete`, `created_delete`, or `location_delete`
 
-ACTION is `stdout`, `calendar:POST_CALENDAR_ID`, or `slack`
+ACTION is `stdout`, `calendar:POST_CALENDAR_ID`, `mail:POST_MAIL_ADDRESS`, or `slack`
 
 If you use `slack` in ACTION, you need get incoming-webhook url and set it in settings.yml
+
+If you use `mail` in ACTION, you need get mail_address and password and set these in settings.yml
 LONGDESC
 
   def share(calendar_id, event_id)
@@ -48,7 +51,8 @@ LONGDESC
   def apply_action(action)
     puts make_sentence if action == "stdout"
     post_slack if action == "slack"
-    post_calendar(action.partition(":")[2]) if action.include?("calendar")
+    post_calendar(action.partition(":")[2]) if action.partition(":")[0] == "calendar"
+    post_mail(action.partition(":")[2]) if action.partition(":")[0] == "mail"
   end
 
   def make_sentence
@@ -61,8 +65,10 @@ LONGDESC
 
   def post_slack(options = {})
     sentence = make_sentence
+    set_settings
     payload = options.merge({text: sentence})
-    uri = URI.parse(set_incoming_webhook_url)
+    incoming_webhook_url = ENV['INCOMING_WEBHOOK_URL'] || @config["slack_incoming_webhook_url"]
+    uri = URI.parse(incoming_webhook_url)
     res = nil
     json = payload.to_json
     request = "payload=" + json
@@ -76,10 +82,9 @@ LONGDESC
     return res
   end
 
-  def set_incoming_webhook_url
+  def set_settings
     settings_file_path = "settings.yml"
-    config = YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
-    incoming_webhook = ENV['INCOMING_WEBHOOK_URL'] || config["incoming_webhook_url"]
+    @config = YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
   end
 
   def post_calendar(calendar_id)
@@ -97,4 +102,31 @@ LONGDESC
     result = client.insert_event(calendar_id, event)
     puts "Event created: #{result.html_link}"
   end
-end# class GoohubCLI
+
+  def post_mail(post_address)
+    sentence = make_sentence
+    set_settings
+    address = @config['mail_address']
+    password = @config['mail_password']
+    mail = Mail.new do
+      from     "#{address}"
+      to       "#{post_address}"
+      subject  "Goohub share event"
+      body     "#{sentence}"
+    end
+
+    options = { :address               => "smtp.#{address.split('@')[1]}",
+                :port                  => 587,
+                :domain                => "#{address.split('@')[1]}",
+                :user_name             => "#{address.split('id')[0]}",
+                :password              => "#{password}",
+                :authentication        => :plain,
+                :enable_starttls_auto  => true  }
+
+    mail.charset = 'utf-8'
+    mail.delivery_method(:smtp, options)
+    mail.deliver
+    puts "Mail send is end, post content is under"
+    puts  sentence
+  end
+end# class GoohubCLI''

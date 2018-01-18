@@ -1,1 +1,3 @@
-incoming_webhook_url: https://XXXXXXXXXX
+slack_incoming_webhook_url: https://XXXXXXXXXX
+mail_address: <your_mail_address>
+mail_password: <your_password>
