@@ -1,19 +1,46 @@
 module Goohub
   class Action
-    def initialize(name, sentence_items)
-      @name = name
+    def initialize(action_id, sentence_items, client)
+      @action_id = action_id
       @sentence_items = sentence_items
+      @client = client
     end
 
     def apply
-      puts make_sentence if @name == "stdout"
-      post_slack if @name == "slack"
-      post_calendar(@name.partition(":")[2]) if @name.partition(":")[0] == "calendar"
-      post_mail(@name.partition(":")[2]) if @name.partition(":")[0] == "mail"
+      puts make_sentence if @action_id == "stdout"
+      apply_slack if @action_id == "slack"
+      apply_calendar(@action_id.partition(":")[2]) if @action_id.partition(":")[0] == "calendar"
+      apply_mail(@action_id.partition(":")[2]) if @action_id.partition(":")[0] == "mail"
     end
 
     private
 
+    #####################################################
+    ### root_methods
+    #####################################################
+    def apply_slack
+      sentence = make_sentence
+      post_slack(sentence)
+      puts "Slack post is end, post content is under"
+      puts  sentence
+    end
+
+    def apply_calendar(calendar_id)
+      event = make_event
+      result = post_calendar(calendar_id, event)
+      puts "Event created: #{result.html_link}"
+    end
+
+    def apply_mail(mail_address)
+      sentence = make_sentence
+      post_mail(mail_address, sentence)
+      puts "Mail send is end, post content is under"
+      puts  sentence
+    end
+
+    #####################################################
+    ### process_methods
+    #####################################################
     def make_sentence
       sentence = ""
       @sentence_items.each{ |key, value|
@@ -22,31 +49,7 @@ module Goohub
       sentence
     end
 
-    def post_slack(options = {})
-      sentence = make_sentence
-      set_settings
-      payload = options.merge({text: sentence})
-      incoming_webhook_url = ENV['INCOMING_WEBHOOK_URL'] || @config["slack_incoming_webhook_url"]
-      uri = URI.parse(incoming_webhook_url)
-      res = nil
-      json = payload.to_json
-      request = "payload=" + json
-
-      Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        res = http.post(uri.request_uri, request)
-      end
-      puts "Slack post is end, post content is under"
-      puts  sentence
-      return res
-    end
-
-    def set_settings
-      settings_file_path = "settings.yml"
-      @config = YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
-    end
-
-    def post_calendar(calendar_id)
+    def make_event
       event =
         Google::Apis::CalendarV3::Event.new({
                                               summary: @sentence_items["summary"],
@@ -58,18 +61,38 @@ module Goohub
                                               },
                                               location: @sentence_items["location"]
                                             })
-      result = client.insert_event(calendar_id, event)
-      puts "Event created: #{result.html_link}"
+      event
     end
 
-    def post_mail(post_address)
-      sentence = make_sentence
+    #####################################################
+    ### export_methods
+    #####################################################
+    def post_slack(sentence, options = {})
+      payload = options.merge({text: sentence})
+      set_settings
+      incoming_webhook_url = ENV['INCOMING_WEBHOOK_URL'] || @config["slack_incoming_webhook_url"]
+      uri = URI.parse(incoming_webhook_url)
+      res = nil
+      json = payload.to_json
+      request = "payload=" + json
+      Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        res = http.post(uri.request_uri, request)
+      end
+      return res
+    end
+
+    def post_calendar(calendar_id, event)
+      result = @client.insert_event(calendar_id, event)
+    end
+
+    def post_mail(mail_address, sentence)
       set_settings
       address = @config['mail_address']
       password = @config['mail_password']
       mail = Mail.new do
         from     "#{address}"
-        to       "#{post_address}"
+        to       "#{mail_address}"
         subject  "Goohub share event"
         body     "#{sentence}"
       end
@@ -85,8 +108,14 @@ module Goohub
       mail.charset = 'utf-8'
       mail.delivery_method(:smtp, options)
       mail.deliver
-      puts "Mail send is end, post content is under"
-      puts  sentence
+    end
+
+    #####################################################
+    ### other methods
+    #####################################################
+    def set_settings
+      settings_file_path = "settings.yml"
+      @config = YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
     end
   end# class Action
 end# module Goohub

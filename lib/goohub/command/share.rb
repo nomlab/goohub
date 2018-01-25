@@ -24,7 +24,7 @@ LONGDESC
     sentence_items = parse_event(event)
     filter = Goohub::Filter.new(options[:filter], sentence_items)
     sentence_items = filter.apply
-    action = Goohub::Action.new(options[:action], sentence_items)
+    action = Goohub::Action.new(options[:action], sentence_items, client)
     action.apply
   end
 
