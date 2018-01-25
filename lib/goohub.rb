@@ -8,4 +8,6 @@ module Goohub
   autoload :Resource,             "#{dir}/resource.rb"
   autoload :DataStore,            "#{dir}/datastore.rb"
   autoload :DateFrame,            "#{dir}/date_frame.rb"
+  autoload :Filter,               "#{dir}/filter.rb"
+  autoload :Action,               "#{dir}/action.rb"
 end
