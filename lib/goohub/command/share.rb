@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'json'
 require 'uri'
 require 'yaml'
@@ -19,41 +20,59 @@ If you use `mail` in ACTION, you need get mail_address and password and set thes
 LONGDESC
 
   def share(calendar_id, event_id)
-    filter = options[:filter]
-    action = options[:action]
     event = client.get_event(calendar_id, event_id)
-    parse_event(event)
-    apply_filter(filter)
-    apply_action(action)
+    sentence_items = parse_event(event)
+    filter = Filter.new(options[:filter], sentence_items)
+    sentence_items = filter.apply
+    action = Action.new(options[:action], sentence_items)
+    action.apply
   end
 
   private
 
   def parse_event(event)
-    @sentence_items = {}
-    @sentence_items["summary"] =    event.summary
-    @sentence_items["id"] =         event.id
-    @sentence_items["created"] =    event.created
-    @sentence_items["kind"] =       event.kind
-    @sentence_items["organized"] =  event.organizer.display_name
-    @sentence_items["start_time"] = event.start.date_time
-    @sentence_items["end_time"] =   event.end.date_time
-    @sentence_items["location"] =   event.location
+    sentence_items = {}
+    sentence_items["summary"] =    event.summary
+    sentence_items["id"] =         event.id
+    sentence_items["created"] =    event.created
+    sentence_items["kind"] =       event.kind
+    sentence_items["organized"] =  event.organizer.display_name
+    sentence_items["start_time"] = event.start.date_time
+    sentence_items["end_time"] =   event.end.date_time
+    sentence_items["location"] =   event.location
+    sentence_items
+  end
+end# class GoohubCLI
+
+class Filter
+  def initialize(name, sentence_items)
+    @name = name
+    @sentence_items = sentence_items
   end
 
-  def apply_filter(filter)
-    return if filter == "no_filter"
-    @sentence_items["location"] = nil if filter == "location_delete"
-    @sentence_items["created"] = nil if filter == "created_delete"
-    @sentence_items["summary"] = nil if filter == "summary_delete"
+  def apply
+    return if @name == "no_filter"
+    @sentence_items["location"] = nil if @name== "location_delete"
+    @sentence_items["created"] = nil if @name == "created_delete"
+    @sentence_items["summary"] = nil if @name == "summary_delete"
+    @sentence_items
+  end
+end# class Filter
+
+class Action
+  def initialize(name, sentence_items)
+    @name = name
+    @sentence_items = sentence_items
   end
 
-  def apply_action(action)
-    puts make_sentence if action == "stdout"
-    post_slack if action == "slack"
-    post_calendar(action.partition(":")[2]) if action.partition(":")[0] == "calendar"
-    post_mail(action.partition(":")[2]) if action.partition(":")[0] == "mail"
+  def apply
+    puts make_sentence if @name == "stdout"
+    post_slack if @name == "slack"
+    post_calendar(@name.partition(":")[2]) if @name.partition(":")[0] == "calendar"
+    post_mail(@name.partition(":")[2]) if @name.partition(":")[0] == "mail"
   end
+
+  private
 
   def make_sentence
     sentence = ""
@@ -129,4 +148,4 @@ LONGDESC
     puts "Mail send is end, post content is under"
     puts  sentence
   end
-end# class GoohubCLI''
+end# class Action
