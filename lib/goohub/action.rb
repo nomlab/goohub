@@ -4,6 +4,13 @@ module Goohub
       @action_id = action_id
       @sentence_items = sentence_items
       @client = client
+      @export_address = @action_id.partition(":")[2]
+      puts @export_address
+      action = Struct.new("ActionID", :application, :converter, :informant)
+      @stdout = action.new("stdout", "convert_sentence", "inform_stdout")
+      @slack = action.new("slack", "convert_sentence", "inform_slack")
+      @calendar = action.new("calendar", "convert_google_event", "inform_google_calendar")
+      @mail = action.new("mail", "convert_sentence", "inform_mail")
     end
 
     def apply
@@ -19,29 +26,21 @@ module Goohub
     ### root_methods
     #####################################################
     def apply_slack
-      sentence = make_sentence
-      post_slack(sentence)
-      puts "Slack post is end, post content is under"
-      puts  sentence
+      inform_slack(convert_sentence)
     end
 
     def apply_calendar(calendar_id)
-      event = make_event
-      result = post_calendar(calendar_id, event)
-      puts "Event created: #{result.html_link}"
+      result = inform_calendar(calendar_id, convert_google_event)
     end
 
     def apply_mail(mail_address)
-      sentence = make_sentence
-      post_mail(mail_address, sentence)
-      puts "Mail send is end, post content is under"
-      puts  sentence
+      inform_mail(mail_address, convert_sentence)
     end
 
     #####################################################
     ### process_methods
     #####################################################
-    def make_sentence
+    def convert_sentence
       sentence = ""
       @sentence_items.each{ |key, value|
         sentence <<  "#{key}: #{value}\n"
@@ -49,7 +48,7 @@ module Goohub
       sentence
     end
 
-    def make_event
+    def convert_google_event
       event =
         Google::Apis::CalendarV3::Event.new({
                                               summary: @sentence_items["summary"],
@@ -67,7 +66,7 @@ module Goohub
     #####################################################
     ### export_methods
     #####################################################
-    def post_slack(sentence, options = {})
+    def inform_slack(sentence, options = {})
       payload = options.merge({text: sentence})
       set_settings
       incoming_webhook_url = ENV['INCOMING_WEBHOOK_URL'] || @config["slack_incoming_webhook_url"]
@@ -82,11 +81,11 @@ module Goohub
       return res
     end
 
-    def post_calendar(calendar_id, event)
+    def inform_calendar(calendar_id, event)
       result = @client.insert_event(calendar_id, event)
     end
 
-    def post_mail(mail_address, sentence)
+    def inform_mail(mail_address, sentence)
       set_settings
       address = @config['mail_address']
       password = @config['mail_password']
