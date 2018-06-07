@@ -1,3 +1,4 @@
+# coding: utf-8
 module Goohub
   class Action
     def initialize(action_id, sentence_items, client)
@@ -5,7 +6,6 @@ module Goohub
       @sentence_items = sentence_items
       @client = client
       @export_address = @action_id.partition(":")[2]
-      puts @export_address
       action = Struct.new("ActionID", :application, :converter, :informant)
       @stdout = action.new("stdout", "convert_sentence", "inform_stdout")
       @slack = action.new("slack", "convert_sentence", "inform_slack")
@@ -14,27 +14,35 @@ module Goohub
     end
 
     def apply
-      puts make_sentence if @action_id == "stdout"
+      apply_stdout if @action_id == "stdout"
       apply_slack if @action_id == "slack"
-      apply_calendar(@action_id.partition(":")[2]) if @action_id.partition(":")[0] == "calendar"
-      apply_mail(@action_id.partition(":")[2]) if @action_id.partition(":")[0] == "mail"
+      apply_calendar if @action_id.partition(":")[0] == "calendar"
+      apply_mail if @action_id.partition(":")[0] == "mail"
     end
 
     private
 
+    def expand_query(type)
+      eval("apply_#{type}")
+    end
+
     #####################################################
     ### root_methods
     #####################################################
+    def apply_stdout
+      puts convert_sentence
+    end
+
     def apply_slack
       inform_slack(convert_sentence)
     end
 
-    def apply_calendar(calendar_id)
-      result = inform_calendar(calendar_id, convert_google_event)
+    def apply_calendar
+      result = inform_calendar(convert_google_event)
     end
 
-    def apply_mail(mail_address)
-      inform_mail(mail_address, convert_sentence)
+    def apply_mail
+      inform_mail(convert_sentence)
     end
 
     #####################################################
@@ -81,21 +89,22 @@ module Goohub
       return res
     end
 
-    def inform_calendar(calendar_id, event)
-      result = @client.insert_event(calendar_id, event)
+    def inform_calendar(event)
+      result = @client.insert_event(event)
     end
 
-    def inform_mail(mail_address, sentence)
+    def inform_mail(sentence)
       set_settings
+      # なぜか，インスタンス変数を直接mailのtoにつっこむと落ちるため，一度変数にうつす
+      to = @export_address
       address = @config['mail_address']
       password = @config['mail_password']
       mail = Mail.new do
         from     "#{address}"
-        to       "#{mail_address}"
+        to       "#{to}"
         subject  "Goohub share event"
         body     "#{sentence}"
       end
-
       options = { :address               => "smtp.#{address.split('@')[1]}",
                   :port                  => 587,
                   :domain                => "#{address.split('@')[1]}",
