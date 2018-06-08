@@ -2,10 +2,10 @@
 module Goohub
   class Action
     def initialize(action_id, sentence_items, client)
-      @action_id = action_id
+      @type = action_id.partition(":")[0]
       @sentence_items = sentence_items
       @client = client
-      @export_address = @action_id.partition(":")[2]
+      @export_address = action_id.partition(":")[2]
       action = Struct.new("ActionID", :application, :converter, :informant)
       @stdout = action.new("stdout", "convert_sentence", "inform_stdout")
       @slack = action.new("slack", "convert_sentence", "inform_slack")
@@ -14,17 +14,10 @@ module Goohub
     end
 
     def apply
-      apply_stdout if @action_id == "stdout"
-      apply_slack if @action_id == "slack"
-      apply_calendar if @action_id.partition(":")[0] == "calendar"
-      apply_mail if @action_id.partition(":")[0] == "mail"
+      eval("apply_#{@type}")
     end
 
     private
-
-    def expand_query(type)
-      eval("apply_#{type}")
-    end
 
     #####################################################
     ### root_methods
@@ -38,7 +31,7 @@ module Goohub
     end
 
     def apply_calendar
-      result = inform_calendar(convert_google_event)
+      inform_calendar(convert_google_event)
     end
 
     def apply_mail
@@ -90,7 +83,7 @@ module Goohub
     end
 
     def inform_calendar(event)
-      result = @client.insert_event(event)
+      result = @client.insert_event(@export_address, event)
     end
 
     def inform_mail(sentence)
