@@ -4,8 +4,9 @@ module Goohub
     def initialize(filter_id, sentence_items)
       @filter_id = filter_id
       @sentence_items = sentence_items
+      @kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
       set_db
-      eval("@#{@filter_id} = JSON.parse(@kvs.load(@filter_id))")
+      load(@filter_id)
     end
 
     def apply
@@ -65,10 +66,28 @@ module Goohub
         "modifier" => "replace:location:"
       }
 
-      @kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
-      @kvs.store("summary_delete", summary_delete.to_json)
-      @kvs.store("created_delete", created_delete.to_json)
-      @kvs.store("location_delete", location_delete.to_json)
+      register(summary_delete, "summary_delete")
+      register(location_delete, "location_delete")
+      register(created_delete, "created_delete")
+
     end
+
+    #####################################################
+    ### db_methods
+    #####################################################
+
+    def register(h, key)
+      @kvs.store(key, h.to_json)
+    end
+
+    def delete(key)
+      @kvs.delete(key)
+    end
+
+    def load(key)
+      eval("@#{key} = JSON.parse(@kvs.load(key))")
+    end
+
+
   end# class Filter
 end# module Goohub
