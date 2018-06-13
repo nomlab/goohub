@@ -6,37 +6,32 @@ module Goohub
       @sentence_items = sentence_items
       @client = client
       @export_address = action_id.partition(":")[2]
-      action = Struct.new("ActionID", :application, :converter, :informant)
-      @stdout = action.new("stdout", "convert_sentence", "inform_stdout")
-      @slack = action.new("slack", "convert_sentence", "inform_slack")
-      @calendar = action.new("calendar", "convert_google_event", "inform_google_calendar")
-      @mail = action.new("mail", "convert_sentence", "inform_mail")
+      @stdout  ={
+        "converter" => "convert_sentence",
+        "informant" => "inform_stdout"
+      }
+      @slack  ={
+        "converter" => "convert_sentence",
+        "informant" => "inform_slack"
+      }
+      @calendar  ={
+        "converter" => "convert_google_event",
+        "informant" => "inform_calendar"
+      }
+      @mail  ={
+        "converter" => "convert_sentence",
+        "informant" => "inform_mail"
+      }
+
     end
 
     def apply
-      eval("apply_#{@type}")
+      converter = eval("@#{@type}['converter']")
+      informant = eval("@#{@type}['informant']")
+      eval("#{informant}(#{converter})")
     end
 
     private
-
-    #####################################################
-    ### root_methods
-    #####################################################
-    def apply_stdout
-      puts convert_sentence
-    end
-
-    def apply_slack
-      inform_slack(convert_sentence)
-    end
-
-    def apply_calendar
-      inform_calendar(convert_google_event)
-    end
-
-    def apply_mail
-      inform_mail(convert_sentence)
-    end
 
     #####################################################
     ### process_methods
@@ -67,6 +62,10 @@ module Goohub
     #####################################################
     ### export_methods
     #####################################################
+    def inform_stdout(sentence)
+      puts sentence
+    end
+
     def inform_slack(sentence, options = {})
       payload = options.merge({text: sentence})
       set_settings
