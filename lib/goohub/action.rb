@@ -6,22 +6,9 @@ module Goohub
       @sentence_items = sentence_items
       @client = client
       @export_address = action_id.partition(":")[2]
-      @stdout  ={
-        "converter" => "convert_sentence",
-        "informant" => "inform_stdout"
-      }
-      @slack  ={
-        "converter" => "convert_sentence",
-        "informant" => "inform_slack"
-      }
-      @calendar  ={
-        "converter" => "convert_google_event",
-        "informant" => "inform_calendar"
-      }
-      @mail  ={
-        "converter" => "convert_sentence",
-        "informant" => "inform_mail"
-      }
+      @kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
+      set_db
+      load(@type)
 
     end
 
@@ -111,11 +98,56 @@ module Goohub
     end
 
     #####################################################
-    ### other methods
+    ### setting_methods
     #####################################################
     def set_settings
       settings_file_path = "settings.yml"
       @config = YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
     end
+
+    def set_db
+      stdout  ={
+        "converter" => "convert_sentence",
+        "informant" => "inform_stdout"
+      }
+      slack  ={
+        "converter" => "convert_sentence",
+        "informant" => "inform_slack"
+      }
+      calendar  ={
+        "converter" => "convert_google_event",
+        "informant" => "inform_calendar"
+      }
+      mail  ={
+        "converter" => "convert_sentence",
+        "informant" => "inform_mail"
+      }
+
+
+      register(stdout, "stdout")
+      register(slack,"slack")
+      register(calendar, "calendar")
+      register(mail, "mail")
+
+    end
+
+    #####################################################
+    ### db_methods
+    #####################################################
+
+    def register(h, key)
+      @kvs.store(key, h.to_json)
+    end
+
+    def delete(key)
+      @kvs.delete(key)
+    end
+
+    def load(key)
+      eval("@#{key} = JSON.parse(@kvs.load(key))")
+    end
+
+
+
   end# class Action
 end# module Goohub
