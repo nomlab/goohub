@@ -8,13 +8,15 @@ module Goohub
       @export_address = action_id.partition(":")[2]
       @kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
       set_db
-      load(@type)
-
+      actions = load("actions")
+      actions.each { |a|
+        @action = a if a["name"]["#{@type}"]
+      }
     end
 
     def apply
-      converter = eval("@#{@type}['converter']")
-      informant = eval("@#{@type}['informant']")
+      converter = @action['converter']
+      informant = @action['informant']
       eval("#{informant}(#{converter})")
     end
 
@@ -107,28 +109,33 @@ module Goohub
 
     def set_db
       stdout  ={
+        "id" => "1",
+        "name" => "stdout",
         "converter" => "convert_sentence",
         "informant" => "inform_stdout"
       }
       slack  ={
+        "id" => "2",
+        "name" => "slack",
         "converter" => "convert_sentence",
         "informant" => "inform_slack"
       }
       calendar  ={
+        "id" => "3",
+        "name" => "calendar",
         "converter" => "convert_google_event",
         "informant" => "inform_calendar"
       }
       mail  ={
+        "id" => "4",
+        "name" => "mail",
         "converter" => "convert_sentence",
         "informant" => "inform_mail"
       }
 
-
-      register(stdout, "stdout")
-      register(slack,"slack")
-      register(calendar, "calendar")
-      register(mail, "mail")
-
+      actions = []
+      actions << stdout << slack << calendar << mail
+      register(actions, "actions")
     end
 
     #####################################################
@@ -144,10 +151,7 @@ module Goohub
     end
 
     def load(key)
-      eval("@#{key} = JSON.parse(@kvs.load(key))")
+      JSON.parse(@kvs.load(key))
     end
-
-
-
   end# class Action
 end# module Goohub

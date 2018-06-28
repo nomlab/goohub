@@ -6,7 +6,10 @@ module Goohub
       @sentence_items = sentence_items
       @kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
       set_db
-      load(@filter_id)
+      filters = load("filters")
+      filters.each { |f|
+        @filter = f if f["name"]["#{@filter_id}"]
+      }
     end
 
     def apply
@@ -22,14 +25,14 @@ module Goohub
     #eval では，それまでに定義していない変数名を利用できないため，あえてif文を利用している
     def expand_query(type)
       if type == "condition" then
-        method = eval("@#{@filter_id}['condition'].split(':')[0]")
-        field =  eval("@#{@filter_id}['condition'].split(':')[1]")
-        value =  eval("@#{@filter_id}['condition'].split(':')[2]")
+        method = @filter['condition'].split(':')[0]
+        field =  @filter['condition'].split(':')[1]
+        value =  @filter['condition'].split(':')[2]
         eval("#{method}(field,value)")
       elsif type == "modifier" then
-        method = eval("@#{@filter_id}['modifier'].split(':')[0]")
-        field =  eval("@#{@filter_id}['modifier'].split(':')[1]")
-        value =  eval("@#{@filter_id}['modifier'].split(':')[2]")
+        method = @filter['modifier'].split(':')[0]
+        field =  @filter['modifier'].split(':')[1]
+        value =  @filter['modifier'].split(':')[2]
         eval("#{method}(field,value)")
       end
     end
@@ -54,22 +57,26 @@ module Goohub
     #####################################################
     def set_db
       summary_delete  ={
+        "id" => "1",
+        "name" => "summary_delete",
         "condition" => "match:summary:.",
         "modifier" => "replace:summary:"
       }
       created_delete  ={
+        "id" => "2",
+        "name" => "created_delete",
         "condition" => "match:summary:.",
         "modifier" => "replace:created:"
       }
       location_delete  ={
+        "id" => "3",
+        "name" => "location_delete",
         "condition" => "match:summary:.",
         "modifier" => "replace:location:"
       }
-
-      register(summary_delete, "summary_delete")
-      register(location_delete, "location_delete")
-      register(created_delete, "created_delete")
-
+      filters = []
+      filters << summary_delete << created_delete << location_delete
+      register(filters, "filters")
     end
 
     #####################################################
@@ -85,9 +92,7 @@ module Goohub
     end
 
     def load(key)
-      eval("@#{key} = JSON.parse(@kvs.load(key))")
+      JSON.parse(@kvs.load(key))
     end
-
-
   end# class Filter
 end# module Goohub
