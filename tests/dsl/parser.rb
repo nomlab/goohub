@@ -106,5 +106,32 @@ class ActionParser < Parser
       return nil
     end
   end
+end
 
+################################################################
+# Outlet Parser
+################################################################
+class OutletParser < Parser
+  def self.evaluate(query, upper_expression = nil)
+    super
+  end
+
+  private
+
+  def self.determine_non_terminal_expression(query_array)
+    super
+  end
+
+  def self.determine_terminal_expression(query_array)
+    case query_array[0]
+    when "google_calendar" then
+      node = Google_calendar.new(query_array[2])
+    when "mail" then
+      node = Mail.new(query_array[2])
+    when "slack" then
+      node = Slack.new
+    else
+      return nil
+    end
+  end
 end

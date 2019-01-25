@@ -37,3 +37,5 @@ if  expr.evaluate(e) then
 end
 p "result: " + "#{expr.evaluate(e)}"# for debug
 e.put_items
+expr = OutletParser.evaluate("google_calendar:kjtbw1219@gmail.com")
+expr.evaluate(e)

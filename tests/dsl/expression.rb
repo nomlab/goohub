@@ -232,3 +232,32 @@ end
 
 class Hide < Replace
 end
+
+################################################################
+# Terminal Expression for Outlet
+################################################################
+class Google_calendar < Expression
+  def initialize(calendar_id)
+    @calendar_id= calendar_id
+  end
+
+  def evaluate(e)
+    puts "Outlet Calendar: #{@calendar_id}"
+  end
+end
+
+class Mail < Expression
+  def initialize(mail_address)
+    @mail_address = mail_address
+  end
+
+  def evaluate(e)
+    puts "Outlet Mail: #{@mail_address}"
+  end
+end
+
+class Slack < Replace
+  def evaluate(e)
+    puts "Outlet Slack"
+  end
+end
