@@ -20,7 +20,7 @@ module Goohub
     #####################################################
     ### test_methods
     #####################################################
-    def set_db # for test data set
+    def set_db(kvs) # for test data set
       stdout  ={
         "id" => "1",
         "name" => "stdout",
@@ -44,7 +44,7 @@ module Goohub
 
       outlets = []
       outlets << stdout << slack << calendar << mail
-      @kvs.store("outlets", outlets.to_json)
+      kvs.store("outlets", outlets.to_json)
     end
 
   end# class Outlet
