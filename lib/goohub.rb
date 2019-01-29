@@ -10,4 +10,5 @@ module Goohub
   autoload :DateFrame,            "#{dir}/date_frame.rb"
   autoload :Filter,               "#{dir}/filter.rb"
   autoload :Action,               "#{dir}/action.rb"
+  autoload :Outlet,               "#{dir}/outlet.rb"
 end
