@@ -132,11 +132,10 @@ module Goohub
         when "google_calendar" then
           node = Goohub::Expression::Google_calendar.new(query_array[2])
         when "mail" then
-          node = Goohub::Expression::Mail.new(query_array[2])
+          node = Goohub::Expression::Mailer.new(query_array[2])
         when "slack" then
           node = Goohub::Expression::Slack.new
         when "stdout" then
-          p "!!!!!!!!!!!"
           node = Goohub::Expression::Stdout.new
         else
           return nil

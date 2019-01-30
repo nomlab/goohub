@@ -1,4 +1,9 @@
 # coding: utf-8
+require 'json'
+require 'uri'
+require 'yaml'
+require 'mail'
+require 'net/https'
 
 ################################################################
 # Abstract Expression
@@ -306,8 +311,8 @@ module Goohub
       end
 
       def evaluate(e, client)
-        prase_event(e)
-        inform_calendar(convert_calendar, client)
+        parse_event(e)
+        inform_calendar(convert_google_event, client)
         puts "Outlet Calendar: #{@calendar_id}"
       end
 
@@ -318,13 +323,13 @@ module Goohub
       end
     end
 
-    class Mail < Outlet
+    class Mailer < Outlet
       def initialize(mail_address)
         @mail_address = mail_address
       end
 
       def evaluate(e, client)
-        prase_event(e)
+        parse_event(e)
         inform_mail(convert_sentence)
         puts "Outlet Mail: #{@mail_address}"
       end
@@ -360,7 +365,7 @@ module Goohub
 
     class Slack < Outlet
       def evaluate(e, client)
-        prase_event(e)
+        parse_event(e)
         inform_slack(convert_sentence)
         puts "Outlet Slack"
       end
@@ -370,8 +375,7 @@ module Goohub
       def inform_slack(sentence, options = {})
         payload = options.merge({text: sentence})
         set_settings
-        incoming_webhook_url = ENV['INCOMING_WEBHOOK_URL'] || @config["s
-lack_incoming_webhook_url"]
+        incoming_webhook_url = ENV['INCOMING_WEBHOOK_URL'] || @config["slack_incoming_webhook_url"]
         uri = URI.parse(incoming_webhook_url)
         res = nil
         json = payload.to_json
