@@ -5,7 +5,7 @@ module Goohub
 
     def initialize(name)
       kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
-      #      set_db(kvs) # for test data set
+      set_db(kvs) # for test data set
       outlets = JSON.parse(kvs.load("outlets"))
       outlets.each { |outlet|
         @outlet = outlet if outlet["name"]["#{name}"]
@@ -24,22 +24,22 @@ module Goohub
       stdout  ={
         "id" => "1",
         "name" => "stdout",
-        "informant" => "inform_stdout"
+        "informant" => "stdout"
       }
       slack  ={
         "id" => "2",
         "name" => "slack",
-        "informant" => "inform_slack"
+        "informant" => "slack"
       }
       calendar  ={
         "id" => "3",
-        "name" => "calendar",
-        "informant" => "inform_calendar"
+        "name" => "google_calendar",
+        "informant" => "google_calendar:kjtbw1219@gmail.com"
       }
       mail  ={
         "id" => "4",
         "name" => "mail",
-        "informant" => "inform_mail"
+        "informant" => "mail:kjtbw1219lab@gmail.com"
       }
 
       outlets = []
