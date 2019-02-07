@@ -2,28 +2,25 @@
 entity "funnels" {
     + id [PK]
     ==
-    # filter_id [FK(filter,id)]
-    # action_id [FK(action,id)]
-    # outlet_id [FK(outlet,id)]
+    # filter_name [FK(filter,name)]
+    # action_name [FK(action,name)]
+    # outlet_name [FK(outlet,name)]
     name:string(128)
 }
 
 entity "filters" {
-    + id [PK]
+    + name:string(128) [PK]
     ==
-    name:string(128)
     condition:string(128)
 }
 entity "actions" {
-    + id [PK]
+    + name:string(128) [PK]
     ==
-    name:string(128)
     modifier:string(128)
 }
 entity "outlets" {
-    + id [PK]
+    + name:string(128) [PK]
     ==
-    name:string(128)
     informant:string(128)
 }
 
