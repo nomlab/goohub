@@ -5,7 +5,7 @@ module Goohub
 
     def initialize(name)
       kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
-      set_db(kvs) # for test data set
+      #set_db(kvs) # for test data set
       outlets = JSON.parse(kvs.load("outlets"))
       outlets.each { |outlet|
         @outlet = outlet if outlet["name"]["#{name}"]
