@@ -11,6 +11,7 @@ module Goohub
   autoload :Filter,               "#{dir}/filter.rb"
   autoload :Action,               "#{dir}/action.rb"
   autoload :Outlet,               "#{dir}/outlet.rb"
+  autoload :Funnel,               "#{dir}/funnel.rb"
   autoload :Parser,               "#{dir}/parser.rb"
   autoload :Expression,           "#{dir}/Expression.rb"
 end
