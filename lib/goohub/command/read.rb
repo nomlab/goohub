@@ -61,7 +61,15 @@ LONGDESC
 
     when "funnels" then
       # TODO: add funnel read process
-      puts "funnels"
+      funnels = JSON.parse(kvs.load("funnels"))
+      funnels.each { |o|
+        @funnel = Goohub::Funnel.new(options[:name]) if o["name"]["#{options[:name]}"]
+      }
+      if @funnel then
+        puts "Read funnel\nname:#{@funnel.name}, filter_name:#{@funnel.filter_name}, action_name:#{@funnel.action_name}, outlet_name:#{@funnel.outlet_name}"
+      else
+        puts "No funnel match!"
+      end
     else
       puts "else"
     end
