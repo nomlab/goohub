@@ -323,7 +323,7 @@ module Goohub
       end
     end
 
-    class Mailer < Outlet
+    class Mailer < Outlet # Mail is used in gem 'mail', so in this case, use 'Mailer'
       def initialize(mail_address)
         @mail_address = mail_address
       end

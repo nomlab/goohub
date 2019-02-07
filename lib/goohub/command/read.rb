@@ -31,8 +31,8 @@ LONGDESC
       filters.each { |f|
         @filter = Goohub::Filter.new(options[:name]) if f["name"]["#{options[:name]}"]
       }
-      if @filters then
-        puts "name:#{@filter.name}, condition:#{@filter.condition}"
+      if @filter then
+        puts "Read filter\nname:#{@filter.name}, condition:#{@filter.condition}"
       else
         puts "No filter match!"
       end
@@ -43,7 +43,7 @@ LONGDESC
         @action = Goohub::Action.new(options[:name]) if a["name"]["#{options[:name]}"]
       }
       if @action then
-        puts "name:#{@action.name}, modifier:#{@action.modifier}"
+        puts "Read action\nname:#{@action.name}, modifier:#{@action.modifier}"
       else
         puts "No action match!"
       end
@@ -54,7 +54,7 @@ LONGDESC
         @outlet = Goohub::Outlet.new(options[:name]) if o["name"]["#{options[:name]}"]
       }
       if @outlet then
-        puts "name:#{@outlet.name}, informant:#{@outlet.informant}"
+        puts "Read outlet\nname:#{@outlet.name}, informant:#{@outlet.informant}"
       else
         puts "No outlet match!"
       end
