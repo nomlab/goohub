@@ -221,7 +221,7 @@ module Goohub
       end
 
       def evaluate(e)
-        node = FilterParser.determine_terminal_expression([@event_item,"",""])
+        node = Goohub::Parser::Filter.determine_terminal_expression([@event_item,"",""])
         @arg = convert_arg(@arg, node.read(e)) if @arg
         node.write(e, @arg)
         node.format_tag(e)
