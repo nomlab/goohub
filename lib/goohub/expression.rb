@@ -250,14 +250,12 @@ module Goohub
 
       def parse_event(event)
         @sentence_items = {}
-        @sentence_items["summary"] =    event.summary
-        @sentence_items["id"] =         event.id
-        @sentence_items["created"] =    event.created
-        @sentence_items["kind"] =       event.kind
-        @sentence_items["organized"] =  event.organizer.display_name
-        @sentence_items["start_time"] = event.start.date_time
-        @sentence_items["end_time"] =   event.end.date_time
-        @sentence_items["location"] =   event.location
+        @sentence_items["summary"] =     event.summary
+        @sentence_items["description"] = event.description
+        @sentence_items["id"] =          event.id
+        @sentence_items["start_time"] =  event.dtstart
+        @sentence_items["end_time"] =    event.dtend
+        @sentence_items["location"] =    event.location
         @sentence_items
       end
 
