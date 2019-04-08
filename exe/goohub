@@ -31,13 +31,12 @@ class GoohubCLI < Clian::Cli
 
   private
 
-  def setup_global_options
-    begin
+  def setup_global_options(command, *args)
+    exit_on_error do
+      return true if ["init", "help"].member?(command.name)
+
       @config = Goohub::Config.create_from_file(options[:config] ||
-                                                CONFIG_PATH)
-    rescue
-      STDERR.print "ERROR: try goohub init command.\n"
-      exit(1)
+                                                DEFAULT_CONFIG_PATH)
     end
   end
 

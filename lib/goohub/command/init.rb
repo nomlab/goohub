@@ -7,7 +7,7 @@ class GoohubCLI < Clian::Cli
     expand_option :config
 
     def init
-      config_file = options[:config] || CONFIG_PATH
+      config_file = options[:config] || DEFAULT_CONFIG_PATH
       Goohub::Command::Init.new(config_file)
     end
 end # class GoohubCLI
