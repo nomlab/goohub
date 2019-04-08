@@ -18,12 +18,31 @@ LONGDESC
   def share(calendar_id, event_id, funnel_name)
     google_event = client.get_event(calendar_id, event_id)
     e = parse_event(google_event)
+    funnel = Goohub::Funnel.new(funnel_name)
+    if funnel then
+      filter = Goohub::Filter.new(funnel.filter_name)
+      action = Goohub::Action.new(funnel.action_name)
+      outlet = Goohub::Outlet.new(funnel.outlet_name)
+
+      expr = Goohub::Parser::Filter.evaluate(filter.condition)
+      if expr.evaluate(e)
+        expr = Goohub::Parser::Action.evaluate(action.modifier)
+        expr.evaluate(e)
+      end
+      expr = Goohub::Parser::Outlet.evaluate(outlet.informant)
+      expr.evaluate(e, client)
+    else
+      puts "No funnel match!\nPlease check FUNNEL_NAME by read command"
+    end
   end
 
   private
 
   def parse_event(event)
     e = Goohub::Resource::Event.new(event)
+    e.summary = event.summary
+    e.location = event.location
+    e.description = event.description
     e.dtstart = event.start.date_time
     e.dtend = event.end.date_time
     return e
