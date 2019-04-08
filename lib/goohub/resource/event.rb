@@ -4,7 +4,11 @@ module Goohub
 
       def_delegators :@raw_resource,
       :id,
-      :summary
+      :summary,
+      :location,
+      :description
+
+      attr_accessor :dtstart, :dtend
 
       def dump
         @raw_resource
