@@ -28,9 +28,9 @@ LONGDESC
       if expr.evaluate(e)
         expr = Goohub::Parser::Action.evaluate(action.modifier)
         expr.evaluate(e)
+        expr = Goohub::Parser::Outlet.evaluate(outlet.informant)
+        expr.evaluate(e, client)
       end
-      expr = Goohub::Parser::Outlet.evaluate(outlet.informant)
-      expr.evaluate(e, client)
     else
       puts "No funnel match!\nPlease check FUNNEL_NAME by read command"
     end
