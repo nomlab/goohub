@@ -7,8 +7,8 @@ module Goohub
       def self.evaluate(query, upper_expression = nil)
         # in case of  upper_expression is terminal expression
         return self.evaluate(upper_expression) if query == "" and upper_expression != nil
-        p "query: " + query # for debug
-        p "upper_expression: " + upper_expression if upper_expression != nil # for debug
+#        p "query: " + query # for debug
+#        p "upper_expression: " + upper_expression if upper_expression != nil # for debug
         query.gsub!(" ", "")
 
         query_array = query.partition(/\(|!|&|\|/)
@@ -65,7 +65,7 @@ module Goohub
       end
 
       def self.determine_terminal_expression(query_array)
-        p "#{query_array}"
+#        p "#{query_array}" #for debug
         case query_array[0]
         when "summary" then
           node = Goohub::Expression::Summary.new(query_array[2])

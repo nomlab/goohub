@@ -58,14 +58,14 @@ module Goohub
     ################################################################
     class EventString
       def initialize(arg)
-        p "#{arg}"
+        # p "#{arg}" #for debug
         @arg = arg
         @arg = to_regexp(arg) if arg.match(/\/.*\//)
       end
 
       def evaluate(e)
         str = read(e)
-        p "evaluate: " + str + ", #{@arg}"# for debug
+        # p "evaluate: " + str + ", #{@arg}"# for debug
         if str[@arg] then
           return true
         else
@@ -137,7 +137,7 @@ module Goohub
 
       def evaluate(e)
         date = read(e)
-        p "evaluate: " + "#{date}" + ", #{@arg}"# for debug
+        # p "evaluate: " + "#{date}" + ", #{@arg}"# for debug
 
         case @type
         # TODO
