@@ -3,6 +3,8 @@ module Goohub
     def self.create(type, options = {})
       if type == :redis
         return Goohub::DataStore::RedisStore.new(options)
+      elsif type == :file
+        return Goohub::DataStore::FileStore.new(options)
       else
         raise 'Does Not exists #{type} for DataStore'
       end
@@ -52,5 +54,6 @@ module Goohub
     dir = File.dirname(__FILE__) + "/datastore"
 
     autoload :RedisStore,        "#{dir}/redis_store.rb"
+    autoload :FileStore,        "#{dir}/file_store.rb"
   end # module DataStore
 end # module Goohub
