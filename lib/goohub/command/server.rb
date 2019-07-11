@@ -3,7 +3,7 @@ class GoohubCLI < Clian::Cli
   # Command: server
   ################################################################
   desc "server CALENDAR_ID START_MONTH ( END_MONTH )", "gets events between START_MONTH ( and END_MONTH ) found by CALENDAR_ID, and output events which not stored DB "
-  option :output, :default => "redis", :desc => "specify output destination (redis:host:port:name)"
+  option :output, :default => "redis", :desc => "specify output destination (redis:host:port:name or file)"
   long_desc <<-LONGDESC
     `goohub server` gets events between START_MONTH ( and END_MONTH ) found by CALENDAR_ID, and output events which not stored DB
 

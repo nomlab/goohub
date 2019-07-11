@@ -14,9 +14,10 @@ LONGDESC
 
 
   def read(type)
-    kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
+    kvs = Goohub::DataStore.create(:file)
     if options[:name] == nil then
       puts "All #{type} names\n---"
+      return unless kvs.load("#{type}")
       table = JSON.parse(kvs.load("#{type}"))
       table.each { |colum|
         puts colum["name"]
@@ -27,6 +28,7 @@ LONGDESC
 
     case type
     when "filters" then
+      return unless kvs.load("filters")
       filters = JSON.parse(kvs.load("filters"))
       filters.each { |f|
         @filter = Goohub::Filter.new(options[:name]) if f["name"]["#{options[:name]}"]
@@ -38,6 +40,7 @@ LONGDESC
       end
 
     when "actions" then
+      return unless kvs.load("actions")
       actions = JSON.parse(kvs.load("actions"))
       actions.each { |a|
         @action = Goohub::Action.new(options[:name]) if a["name"]["#{options[:name]}"]
@@ -49,6 +52,7 @@ LONGDESC
       end
 
     when "outlets" then
+      return unless kvs.load("outlets")
       outlets = JSON.parse(kvs.load("outlets"))
       outlets.each { |o|
         @outlet = Goohub::Outlet.new(options[:name]) if o["name"]["#{options[:name]}"]
@@ -60,7 +64,7 @@ LONGDESC
       end
 
     when "funnels" then
-      # TODO: add funnel read process
+      return unless kvs.load("funnels")
       funnels = JSON.parse(kvs.load("funnels"))
       funnels.each { |o|
         @funnel = Goohub::Funnel.new(options[:name]) if o["name"]["#{options[:name]}"]

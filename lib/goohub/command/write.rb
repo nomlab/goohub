@@ -15,11 +15,12 @@ If you set `funnel` in TYPE, you must set action_name option and outlet_name opt
 LONGDESC
 
   def write(type, name ,query)
-    kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
+    kvs = Goohub::DataStore.create(:file)
     case type
     when "filters" then
       puts "Save this filter\nname:#{name}, condition:#{query}\n"
-      filters = JSON.parse(kvs.load("filters"))
+      filters = []
+      filters = JSON.parse(kvs.load("filters")) if kvs.load("filters")
       filter = {
         "name" => "#{name}",
         "condition" => "#{query}"
@@ -31,7 +32,8 @@ LONGDESC
 
     when "actions" then
       puts "Save this action\nname:#{name}, modifier:#{query}\n"
-      actions = JSON.parse(kvs.load("actions"))
+      actions = []
+      actions = JSON.parse(kvs.load("actions")) if kvs.load("actions")
       action = {
         "name" => "#{name}",
         "modifier" => "#{query}"
@@ -43,7 +45,8 @@ LONGDESC
 
     when "outlets" then
       puts "Save this outlet\nname:#{name}, informant:#{query}\n"
-      outlets = JSON.parse(kvs.load("outlets"))
+      outlets = []
+      outlets = JSON.parse(kvs.load("outlets")) kvs.load("outlets")
       outlet = {
         "name" => "#{name}",
         "informant" => "#{query}"
@@ -59,7 +62,8 @@ LONGDESC
         return
       end
       puts "Save this funnel\nname:#{name}, filter_name:#{query}, action_name:#{options[:action_name]}, outlet_name:#{options[:outlet_name]}\n"
-      funnels = JSON.parse(kvs.load("funnels"))
+      funnels = []
+      funnels = JSON.parse(kvs.load("funnels")) if kvs.load("funnels")
       funnel = {
         "name" => "#{name}",
         "filter_name" => "#{query}",
