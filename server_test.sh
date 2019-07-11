@@ -15,33 +15,33 @@ Puts_help () {
     echo "help(or -h): Puts this help"
     echo "init(or -i): Init relation DB"
     echo "exec-test(or -et): Exec test"
-    echo "exec-production(or -ep) funnel_name: Exec server production"
+    echo "exec-production(or -ep) : Exec server production"
 
 }
 
 Test () {
     # If comment out while ~ done, this script become server
+    # In test, only 1 share exec
     # while true; do
     y=`date +%Y`
     m=`date +%m | sed 's/0//g'`
     e_ids=`(bundle exec ruby exe/goohub server kjtbw1219@gmail.com ${y}-${m} ${y}-${m})`
     for e_id in ${e_ids[@]}
     do
-        bundle exec ruby exe/goohub share kjtbw1219@gmail.com ${e_id} summary_delete
+        bundle exec ruby exe/goohub share kjtbw1219@gmail.com ${e_id}
     done
     #     sleep 60;
     # done
 }
 
 Exec () {
-    # If comment out while ~ done, this script become server
     while true; do
         y=`date +%Y`
         m=`date +%m | sed 's/0//g'`
         e_ids=`(bundle exec ruby exe/goohub server kjtbw1219@gmail.com ${y}-${m} ${y}-${m})`
         for e_id in ${e_ids[@]}
         do
-            bundle exec ruby exe/goohub share kjtbw1219@gmail.com ${e_id} $1
+            bundle exec ruby exe/goohub share kjtbw1219@gmail.com ${e_id}
         done
         sleep 60;
     done
@@ -67,7 +67,7 @@ case "${type}" in
 			       ;;
     "exec-test" | "-et") Test
 			             ;;
-    "exec-production" | "-ep") Exec $2
+    "exec-production" | "-ep") Exec
 			                   ;;
 	*) echo "If you want to show help, please type 'server_raw_test.sh -h'"
 	   ;;
