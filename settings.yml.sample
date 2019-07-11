@@ -1,3 +1,7 @@
 slack_incoming_webhook_url: https://XXXXXXXXXX
 mail_address: <your_mail_address>
 mail_password: <your_password>
+# If you use goohub-gui, db_path must be goohub-gui_path/src
+db_path: <goohub_db_file_path>
+exec_funnel:
+    - <your_funnels>

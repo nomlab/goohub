@@ -3,7 +3,9 @@ module Goohub
   module DataStore
     class FileStore < Base
       def initialize(options = {})
-        @db_path = __dir__ + "/../../../db/"
+        settings_file_path = "settings.yml"
+        config = YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
+        @db_path = config["db_path"]
       end
 
       def load(key)
