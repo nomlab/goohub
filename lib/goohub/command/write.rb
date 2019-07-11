@@ -46,7 +46,7 @@ LONGDESC
     when "outlets" then
       puts "Save this outlet\nname:#{name}, informant:#{query}\n"
       outlets = []
-      outlets = JSON.parse(kvs.load("outlets")) kvs.load("outlets")
+      outlets = JSON.parse(kvs.load("outlets")) if kvs.load("outlets")
       outlet = {
         "name" => "#{name}",
         "informant" => "#{query}"
