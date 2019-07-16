@@ -26,9 +26,8 @@ goohubは，Google Calendarとの認証を行い，予定の取得や送信を�
  $ bundle exec ruby exe/goohub init
  #+END_SRC
  この際，GoogleCalendarAPIの，client_idと，client_secretが必要になる．
- 参考
- 1: https://console.developers.google.com
- 2: https://developers.google.com/adwords/api/docs/guides/authentication?hl=ja#installed
+    1. https://console.developers.google.com
+    2. https://developers.google.com/adwords/api/docs/guides/authentication?hl=ja#installed
 
 
 4. Check goohub version
@@ -81,7 +80,6 @@ $ bundle exec ruby exe/goohub help [COMMAND]
 | actions        | 予定をどのように書き換えるかを表す |
 | outlets        | 予定を公開するアプリケーションの種類を表す |
 
-![db](attic/er.png)
 
 また，各変数について，条件の記述にはDSLを用いる．
 DSLの文法は，https://github.com/kjtbw/goohub/wiki/%E3%83%A6%E3%83%BC%E3%82%B6%E3%81%8C%E6%8C%87%E5%AE%9A%E3%81%99%E3%82%8B%E3%83%AB%E3%83%BC%E3%83%AB%E3%81%AE%E5%BD%A2%E5%BC%8F に記述してある．
@@ -90,6 +88,7 @@ DSLの文法は，https://github.com/kjtbw/goohub/wiki/%E3%83%A6%E3%83%BC%E3%82%
 この機能を利用する場合は，以下の手順を行う必要がある．
 
 1. Checkout branch
+
  この機能は，FileStoreブランチで開発しているため，そのブランチにチェックアウトする．
  #+BEGIN_SRC sh
  $ git chehkout FileStore
@@ -97,7 +96,7 @@ DSLの文法は，https://github.com/kjtbw/goohub/wiki/%E3%83%A6%E3%83%BC%E3%82%
 
 2. Write Settings
  #+BEGIN_SRC sh
-　$ cp settings.yml.sample settings.yml
+ $ cp settings.yml.sample settings.yml
  $ vim settings.yml
  #+END_SRC
 
