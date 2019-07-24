@@ -4,7 +4,8 @@ module Goohub
     attr_accessor :name, :condition, :filter
 
     def initialize(name)
-      kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
+      #kvs = Goohub::DataStore.create(:redis, {:host => "localhost", :port => "6379".to_i, :db => "0".to_i})
+      kvs = Goohub::DataStore.create(:file)
 #      set_db(kvs) # for test data set
       filters = JSON.parse(kvs.load("filters"))
       filters.each { |filter|
