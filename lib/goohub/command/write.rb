@@ -25,8 +25,12 @@ LONGDESC
         "name" => "#{name}",
         "condition" => "#{query}"
       }
+      filters.each_with_index{ |v, i|
+        if v["name"] == filter["name"]
+          filters.delete_at(i);
+        end
+      }
       filters << filter
-      filters.uniq!
       print "Status: "
       puts kvs.store("filters", filters.to_json)
 
@@ -38,8 +42,12 @@ LONGDESC
         "name" => "#{name}",
         "modifier" => "#{query}"
       }
+      actions.each_with_index{ |v, i|
+        if v["name"] == action["name"]
+          actions.delete_at(i);
+        end
+      }
       actions << action
-      actions.uniq!
       print "Status: "
       puts kvs.store("actions", actions.to_json)
 
@@ -51,8 +59,12 @@ LONGDESC
         "name" => "#{name}",
         "informant" => "#{query}"
       }
+      outlets.each_with_index{ |v, i|
+        if v["name"] == outlet["name"]
+          outlets.delete_at(i);
+        end
+      }
       outlets << outlet
-      outlets.uniq!
       print "Status: "
       puts kvs.store("outlets", outlets.to_json)
 
@@ -70,8 +82,12 @@ LONGDESC
         "action_name" => "#{options[:action_name]}",
         "outlet_name" => "#{options[:outlet_name]}"
       }
+      funnels.each_with_index{ |v, i|
+        if v["name"] == funnel["name"]
+          funnels.delete_at(i);
+        end
+      }
       funnels << funnel
-      funnels.uniq!
       print "Status: "
       puts kvs.store("funnels", funnels.to_json)
     else
