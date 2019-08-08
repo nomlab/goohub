@@ -1,6 +1,7 @@
 # coding: utf-8
 require 'sinatra/base'
 require "sinatra/json"
+require 'sinatra/cross_origin'
 require "json"
 
 class GoohubCLI < Clian::Cli
@@ -9,12 +10,24 @@ class GoohubCLI < Clian::Cli
   def sinatra
     controller = Sinatra.new do
       enable :logging
+
       configure do
         set (:info) {
           settings_file_path = "settings.yml"
           YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
         }
+        enable :cross_origin
+      end
 
+      before do
+        response.headers['Access-Control-Allow-Origin'] = '*'
+      end
+
+      options "*" do
+        response.headers["Allow"] = "GET, PUT, POST, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept, X-User-Email, X-Auth-Token"
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        200
       end
 
       get '/' do

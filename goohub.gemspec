@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "redis"
   spec.add_development_dependency "sinatra"
   spec.add_development_dependency "sinatra-contrib"
+  spec.add_development_dependency "sinatra-cross_origin"
 
   spec.add_development_dependency "bundler", "~> 1.13"
   spec.add_development_dependency "rake", "~> 10.0"
