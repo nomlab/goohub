@@ -30,6 +30,9 @@ class GoohubCLI < Clian::Cli
         200
       end
 
+      ################################################################
+      # GET
+      ################################################################
       get '/' do
         "Hello! This is goohub server"
       end
@@ -109,6 +112,75 @@ class GoohubCLI < Clian::Cli
           end
         }
       end
+
+      ################################################################
+      # POST
+      ################################################################
+      post '/funnels' do
+        data = JSON.parse(request.body.read)
+        kvs = Goohub::DataStore.create(:file)
+
+        filters = []
+        filters = JSON.parse(kvs.load("filters")) if kvs.load("filters")
+        filter = {
+          "name" => "#{data['filter']['name']}",
+          "condition" => "#{data['filter']['condition']}"
+        }
+        filters.each_with_index{ |v, i|
+          if v["name"] == filter["name"]
+            filters.delete_at(i);
+          end
+        }
+        filters << filter
+        kvs.store("filters", filters.to_json)
+
+        kvs = Goohub::DataStore.create(:file)
+        actions = []
+        actions = JSON.parse(kvs.load("actions")) if kvs.load("actions")
+        action = {
+          "name" => "#{data['action']['name']}",
+          "modifier" => "#{data['action']['modifier']}"
+        }
+        actions.each_with_index{ |v, i|
+          if v["name"] == action["name"]
+            actions.delete_at(i);
+          end
+        }
+        actions << action
+        kvs.store("actions", actions.to_json)
+
+        kvs = Goohub::DataStore.create(:file)
+        outlets = []
+        outlets = JSON.parse(kvs.load("outlets")) if kvs.load("outlets")
+        outlet = {
+          "name" => "#{data['outlet']['name']}",
+          "informant" => "#{data['outlet']['informant']}"
+        }
+        outlets.each_with_index{ |v, i|
+          if v["name"] == outlet["name"]
+            outlets.delete_at(i);
+          end
+        }
+        outlets << outlet
+        kvs.store("outlets", outlets.to_json)
+
+        kvs = Goohub::DataStore.create(:file)
+        funnels = []
+        funnels = JSON.parse(kvs.load("funnels")) if kvs.load("funnels")
+        funnel = {
+          "name" => "#{data['name']}",
+          "filter_name" => "#{data['filter']['name']}",
+          "action_name" => "#{data['action']['name']}",
+          "outlet_name" => "#{data['outlet']['name']}"
+        }
+        funnels.each_with_index{ |v, i|
+          if v["name"] == funnel["name"]
+            funnels.delete_at(i);
+          end
+        }
+        funnels << funnel
+        kvs.store("funnels", funnels.to_json)
+      end# post /funnels
     end # Sinatra.new
 
     controller.run!
