@@ -181,6 +181,15 @@ class GoohubCLI < Clian::Cli
         funnels << funnel
         kvs.store("funnels", funnels.to_json)
       end# post /funnels
+
+      post '/info/exec_funnel' do
+        data = JSON.parse(request.body.read)
+        settings_file_path = "settings.yml"
+        config = YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
+        config["exec_funnel"] = data
+        YAML.dump(config, File.open(settings_file_path, 'w'))
+      end
+
     end # Sinatra.new
 
     controller.run!
