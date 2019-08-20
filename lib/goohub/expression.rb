@@ -4,6 +4,7 @@ require 'uri'
 require 'yaml'
 require 'mail'
 require 'net/https'
+require 'time'
 
 ################################################################
 # Abstract Expression
@@ -136,22 +137,27 @@ module Goohub
       end
 
       def evaluate(e)
-        date = read(e)
+        date = set_date(e)
         # p "evaluate: " + "#{date}" + ", #{@arg}"# for debug
 
-        case @type
-        # TODO
+        case @arg_type
         when :operator then
+          operator = @arg[0]
+          case operator
+          when "newer"
+            result = true if date < read(e)
+          when "older"
+            result = true if date > read(e)
+          when "after"
+            result = true if date <= read(e)
+          when "before"
+            result = true if date >= read(e)
+          end
+        # TODO
         when :range then
         when :reserved then
         end
-
-        result = true# for debug
-        if result then
-          return true
-        else
-          return false
-        end
+        return result
       end
 
       private
@@ -170,7 +176,7 @@ module Goohub
           arg.gsub!(" ", "")
           array = arg.partition(":")
           # TODO: YYYY-MM-DDは変換できるが，MM-DDは変換不可
-          return [array[0], Time.parse(array[2])]
+          return [array[0], array[2]]
 
         when :range then
           arg.gsub!(" ", "")
@@ -181,11 +187,19 @@ module Goohub
           return arg
         end
       end
+      # TODO: 全日とそうでない時の区別
+      def set_date(e)
+        if @arg[1].count("-") == 2
+          return Time.parse(@arg[1])
+        else
+          return Time.new(read(e).year, read(e).month, read(e).day, @arg[1].partition("-")[0], @arg[1].partition("-")[2], 0, "+09:00")
+        end
+      end
     end# class EventDate
 
     class Dtstart < EventDate
       def read(e)
-        return Time.at(e.dtstart)
+        return Time.parse(e.dtstart.to_s)
       end
 
       def write(e, dtstart)
@@ -195,7 +209,7 @@ module Goohub
 
     class Dtend < EventDate
       def read(e)
-        return Time.at(e.dtend)
+        return Time.parse(e.dtstart.to_s)
       end
 
       def write(e, dtend)
