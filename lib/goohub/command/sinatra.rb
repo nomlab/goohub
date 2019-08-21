@@ -37,6 +37,12 @@ class GoohubCLI < Clian::Cli
         "Hello! This is goohub server"
       end
 
+      get '/info/calendars' do
+        kvs = Goohub::DataStore.create(:file)
+        calendars = JSON.parse(kvs.load("calendars"))
+        return json calendars
+      end
+
       get '/info/:key?' do
         return json settings.info if !params["key"]
         json settings.info[params["key"]]
