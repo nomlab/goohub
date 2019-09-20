@@ -1,7 +1,14 @@
+# You must set `db_path` because goohub use json file for DB
+db_path: <goohub_db_file_path>
+
+# If you make funnel, and you want to use funnel, you need `exec_funnel`
+exec_funnel:
+    - <your_funnel_name>
+
+# If you use Slack in outlet informant, you need `slack_incoming_webhook_url`
+# See https://api.slack.com/incoming-webhooks
 slack_incoming_webhook_url: https://XXXXXXXXXX
+
+# If you use mail in outlet informant, you need `mail_address` and `mail_password`
 mail_address: <your_mail_address>
 mail_password: <your_password>
-# If you use goohub-gui, db_path must be goohub-gui_path/src
-db_path: <goohub_db_file_path>
-exec_funnel:
-    - <your_funnels>
