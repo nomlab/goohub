@@ -31,7 +31,7 @@ LONGDESC
       return unless kvs.load("filters")
       filters = JSON.parse(kvs.load("filters"))
       filters.each { |f|
-        @filter = Goohub::Filter.new(options[:name]) if f["name"]["#{options[:name]}"]
+        @filter = Goohub::Filter.new(options[:name]) if f["name"].match(/^#{options[:name]}$/)
       }
       if @filter then
         puts "Read filter\nname:#{@filter.name}, condition:#{@filter.condition}"
@@ -43,7 +43,7 @@ LONGDESC
       return unless kvs.load("actions")
       actions = JSON.parse(kvs.load("actions"))
       actions.each { |a|
-        @action = Goohub::Action.new(options[:name]) if a["name"]["#{options[:name]}"]
+        @action = Goohub::Action.new(options[:name]) if a["name"].match(/^#{options[:name]}$/)
       }
       if @action then
         puts "Read action\nname:#{@action.name}, modifier:#{@action.modifier}"
@@ -55,7 +55,7 @@ LONGDESC
       return unless kvs.load("outlets")
       outlets = JSON.parse(kvs.load("outlets"))
       outlets.each { |o|
-        @outlet = Goohub::Outlet.new(options[:name]) if o["name"]["#{options[:name]}"]
+        @outlet = Goohub::Outlet.new(options[:name]) if o["name"].match(/^#{options[:name]}$/)
       }
       if @outlet then
         puts "Read outlet\nname:#{@outlet.name}, informant:#{@outlet.informant}"
@@ -67,7 +67,7 @@ LONGDESC
       return unless kvs.load("funnels")
       funnels = JSON.parse(kvs.load("funnels"))
       funnels.each { |o|
-        @funnel = Goohub::Funnel.new(options[:name]) if o["name"]["#{options[:name]}"]
+        @funnel = Goohub::Funnel.new(options[:name]) if o["name"].match(/^#{options[:name]}$/)
       }
       if @funnel then
         puts "Read funnel\nname:#{@funnel.name}, filter_name:#{@funnel.filter_name}, action_name:#{@funnel.action_name}, outlet_name:#{@funnel.outlet_name}"

@@ -9,7 +9,7 @@ module Goohub
       #set_db(kvs) # for test data set
       actions = JSON.parse(kvs.load("actions"))
       actions.each { |action|
-        @action = action if action["name"]["#{name}"]
+        @action = action if action["name"].match(/^#{name}$/)
       }
       @name = @action['name']
       @modifier = @action['modifier']

@@ -9,7 +9,7 @@ module Goohub
 #      set_db(kvs) # for test data set
       filters = JSON.parse(kvs.load("filters"))
       filters.each { |filter|
-        @filter = filter if filter["name"]["#{name}"]
+        @filter = filter if filter["name"].match(/^#{name}$/)
       }
       @name = @filter['name']
       @condition = @filter['condition']

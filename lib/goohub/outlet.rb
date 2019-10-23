@@ -9,7 +9,7 @@ module Goohub
       #set_db(kvs) # for test data set
       outlets = JSON.parse(kvs.load("outlets"))
       outlets.each { |outlet|
-        @outlet = outlet if outlet["name"]["#{name}"]
+        @outlet = outlet if outlet["name"].match(/^#{name}$/)
       }
       @name = @outlet['name']
       @informant = @outlet['informant']

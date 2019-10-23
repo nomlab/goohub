@@ -9,7 +9,7 @@ module Goohub
       #set_db(kvs) # for test data set
       funnels = JSON.parse(kvs.load("funnels"))
       funnels.each { |funnel|
-        @funnel = funnel if funnel["name"]["#{name}"]
+        @funnel = funnel if funnel["name"].match(/^#{name}$/)
       }
       @name = @funnel['name']
       @filter_name = @funnel['filter_name']
