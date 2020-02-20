@@ -2,13 +2,11 @@
 
 * Summary
 goohubは，Google Calendarとの認証を行い，予定の取得や送信を行うCLIツールである．
-現在開発中の機能として，Google Calendar上の予定をユーザが指定したルールによって予定を書き換え，特定のメディア(Google Calendar, Slack, メール)に送信する機能をもつ．
-開発中の機能を利用する場合は，下部のUse Development Functionを参照すること．
+また，Google Calendar上の予定をユーザが指定したルールによって予定を書き換え，特定のメディア(Google Calendar, Slack, メール)に送信する機能をもつ．
 
 * Requirements
 + Ruby 2.1.5 ~
 + bundler 1.15.14 ~
-+ Redis 4.0.1 ~
 
 * Installation and Setup
 1. Clone code
@@ -25,10 +23,9 @@ goohubは，Google Calendarとの認証を行い，予定の取得や送信を�
  #+BEGIN_SRC sh
  $ bundle exec ruby exe/goohub init
  #+END_SRC
- この際，GoogleCalendarAPIの，client_idと，client_secretが必要になる．
-    1. https://console.developers.google.com
-    2. https://developers.google.com/adwords/api/docs/guides/authentication?hl=ja#installed
-
+ この際，GoogleCalendarAPIの， =client_id= と， =client_secret= が必要になる．
+    1. [[https://developers.google.com/adwords/api/docs/guides/authentication?hl=ja#installed][ =client_id= と， =client_secret= の入手方法に関するドキュメント]]
+    2. [[https://console.developers.google.com][Google API console]]
 4. Check goohub version
  #+BEGIN_SRC sh
  $ bundle exec ruby exe/goohub version
@@ -44,19 +41,41 @@ goohubは，Google Calendarとの認証を行い，予定の取得や送信を�
  $ bundle exec ruby exe/goohub calendars
  #+END_SRC
  認証に成功した場合，GoogleCalendarで閲覧できるカレンダの一覧が表示される．
+7. Write Settings
+   #+BEGIN_SRC sh
+ $ cp settings.yml.sample settings.yml
+ $ vim settings.yml
+   #+END_SRC
+
+   settings.ymlでは，以下の項目を設定する．
+| 項目名                     | 種別                                                   | 説明                                                                         |
+|----------------------------+--------------------------------------------------------+------------------------------------------------------------------------------|
+| db_path                    | 必須                                                   | goohubのDB(json形式)を配置する場所を記述する．                               |
+| exec_funnel                | 任意(funnelを利用する場合は必須)                       | 実行するfunnel(ルール)の名前                                                 |
+| slack_incoming_webhook_url | 任意(予定の共有先でSlackを指定する場合は必須)          | Slackの =incoming_webhook= で用いるURL，詳細は [[https://api.slack.com/messaging/webhooks][公式のドキュメント]] を見ること |
+| mail_address               | 任意(予定の共有先でメールアドレスを指定する場合は必須) | アクションで予定を共有したいメールアドレス                                   |
+| mail_password              | 任意(予定の共有先でメールアドレスを指定する場合は必須) | アクションで予定を共有したいメールアドレスのパスワード                                                      |
+
 
 * Usage
-|Command Name | Description|
-|-------------|-------------|
-|goohub auth           | GoogleCalendarAPIの認証を行う．|
-|goohub calendars     | カレンダの一覧を表示する．|
-|goohub configuration | 現在の設定を確認する．|
-|goohub events CALENDAR_ID START_MONTH ( END_MONTH ) | CALINDAR_IDのカレンダについて，START_MONTHからEND_MONTHまでの期間の予定を取得する．|
-|goohub get_event CALENDAR_ID EVENT_ID | CALENDAR_IDのカレンダ上のEVENT_IDの予定を取得する．|
-|goohub help [COMMAND]| COMMANDという名前のコマンドの詳細を表示する．|
-|goohub init  | 初期設定を行う．|
-|goohub post_event CALENDAR_ID TITLE START END | CALENDAR_IDのカレンダに予定を追加する．(予定名:TITLE, 開始日時:START, 終了日時:END)|
-|goohub version     | goohubのバージョンを表示する．|
+| Command Name                                        | Description                                                                                      |
+|-----------------------------------------------------+--------------------------------------------------------------------------------------------------|
+| goohub auth                                         | GoogleCalendarAPIの認証を行う．                                                                  |
+| goohub calendars                                    | カレンダの一覧を表示する．                                                                       |
+| goohub configuration                                | 現在の設定を確認する．                                                                           |
+| goohub events CALENDAR_ID START_MONTH ( END_MONTH ) | CALINDAR_IDのカレンダについて，START_MONTHからEND_MONTHまでの期間の予定を取得する．              |
+| goohub get_event CALENDAR_ID EVENT_ID               | CALENDAR_IDのカレンダ上のEVENT_IDの予定を取得する．                                              |
+| goohub help [COMMAND]                               | COMMANDという名前のコマンドの詳細を表示する．                                                    |
+| goohub init                                         | 初期設定を行う．                                                                                 |
+| goohub post_event CALENDAR_ID TITLE START END       | CALENDAR_IDのカレンダに予定を追加する．(予定名:TITLE, 開始日時:START, 終了日時:END)              |
+| goohub version                                      | goohubのバージョンを表示する．                                                                   |
+| goohub read TYPE                                    | TYPE(funnels, filters, actions, outlets)で指定した種類のDBを読む                                 |
+| goohub write TYPE NAME QUERY                        | TYPE(funnels, filters, actions, outlets)で指定した種類について，DBに追記する．                   |
+| goohub share CALENDAR_ID EVENT_ID                   | CALENDAR_ID上のEVENT_IDの予定を，settings.ymlの`exec_funnel`で指定したfunnelに従って，共有する． |
+| goohub server CALENDAR_ID START_MONTH (END_MONTH)   | CALENDAR_ID上の，START_MONTHからEND_MONTHの期間について，まだDBに登録されていない予定を出力する  |
+| goohub sinatra                                      | GUIシステム用のHTTPサーバをlocalhost:4567に立てる．                                              |
+
+なお，   =sinatra= コマンドで立てたHTTPサーバのAPIは，[[https://github.com/kjtbw/goohub/wiki/sintara%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%81%A7%E7%AB%8B%E3%81%A6%E3%82%8BHTTP%E3%82%B5%E3%83%BC%E3%83%90%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6][wiki]] に示す．
 
 以下のコマンドで，コマンドの一覧を確認できる．
 #+BEGIN_SRC sh
@@ -68,65 +87,18 @@ bundle exec ruby exe/goohub
 $ bundle exec ruby exe/goohub help [COMMAND]
 #+END_SRC
 
-* Use Development Function
+* About Rules(funnels, filters, actions, and outlets)
 ** Summary
-現在開発中の機能として，Google Calendar上の予定をユーザが指定したルールによって予定を書き換え，特定のメディア(Google Calendar, Slack, メール)に送信する機能がある．
+goohubは，Google Calendar上の予定をユーザが指定したルールによって予定を書き換え，特定のメディア(Google Calendar, Slack, メール)に送信する機能がある．
 この機能では，ユーザが指定するルールを以下のデータ構造で定義する．
-| variable name  | summary   |
-|----------------|-----------|
-| funnels        |  以下のfilters, actions, outletsを指定する識別子をもつ． |
-| filters        | どの予定を編集するかを表す |
-| actions        | 予定をどのように書き換えるかを表す |
-| outlets        | 予定を公開するアプリケーションの種類を表す |
-
-
+| variable name | summary                                                 |
+|---------------+---------------------------------------------------------|
+| funnels       | 以下のfilters, actions, outletsを指定する識別子をもつ． |
+| filters       | どの予定を編集するかを表す                              |
+| actions       | 予定をどのように書き換えるかを表す                      |
+| outlets       | 予定を公開するアプリケーションの種類を表す              |
 また，各変数について，条件の記述にはDSLを用いる．
-DSLの文法は，https://github.com/kjtbw/goohub/wiki/%E3%83%A6%E3%83%BC%E3%82%B6%E3%81%8C%E6%8C%87%E5%AE%9A%E3%81%99%E3%82%8B%E3%83%AB%E3%83%BC%E3%83%AB%E3%81%AE%E5%BD%A2%E5%BC%8F に記述してある．
-
-** Install and Setup
-   この機能を利用する場合は，以下の手順を行う必要がある．
-
-1. Checkout branch
-
-   この機能は，現状dev_masterブランチで開発しているため，そのブランチにチェックアウトする．
-   #+BEGIN_SRC sh
- $ git chehkout dev_master
-   #+END_SRC
-
-2. Write Settings
-   #+BEGIN_SRC sh
- $ cp settings.yml.sample settings.yml
- $ vim settings.yml
-   #+END_SRC
-
-   settings.ymlでは，以下の項目を設定する．
-   #+BEGIN_SRC sh
-# You must set `db_path` because goohub use json file for DB
-db_path: <goohub_db_file_path>
-
-# If you make funnel, and you want to use funnel, you need `exec_funnel`
-exec_funnel:
-    - <your_funnel_name>
-
-# If you use Slack in outlet informant, you need `slack_incoming_webhook_url`
-# See https://api.slack.com/incoming-webhooks
-slack_incoming_webhook_url: https://XXXXXXXXXX
-
-# If you use mail in outlet informant, you need `mail_address` and `mail_password`
-mail_address: <your_mail_address>
-mail_password: <your_password>
-   #+END_SRC
-
-** Command List
-   | Command Name                                      | summary                                                                                          |
-   |---------------------------------------------------+--------------------------------------------------------------------------------------------------|
-   | goohub read TYPE                                  | TYPE(funnels, filters, actions, outlets)で指定した種類のDBを読む                                 |
-   | goohub write TYPE NAME QUERY                      | TYPE(funnels, filters, actions, outlets)で指定した種類について，DBに追記する．                   |
-   | goohub share CALENDAR_ID EVENT_ID                 | CALENDAR_ID上のEVENT_IDの予定を，settings.ymlの`exec_funnel`で指定したfunnelに従って，共有する． |
-   | goohub server CALENDAR_ID START_MONTH (END_MONTH) | CALENDAR_ID上の，START_MONTHからEND_MONTHの期間について，まだDBに登録されていない予定を出力する  |
-   | goohub sinatra                                    | GUIシステム用のHTTPサーバをlocalhost:4567に立てる．                                               |
-
-   `sinatra`コマンドで立てたHTTPサーバのAPIは，https://github.com/kjtbw/goohub/wiki/sintara%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%81%A7%E7%AB%8B%E3%81%A6%E3%82%8BHTTP%E3%82%B5%E3%83%BC%E3%83%90%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6 に示す．
+DSLの文法は，[[https://github.com/kjtbw/goohub/wiki/%E3%83%A6%E3%83%BC%E3%82%B6%E3%81%8C%E6%8C%87%E5%AE%9A%E3%81%99%E3%82%8B%E3%83%AB%E3%83%BC%E3%83%AB%E3%81%AE%E5%BD%A2%E5%BC%8F][wiki]] に記述してある．
 
 ** Usage
 1. Make your funnels, filters, actions, and outlets
@@ -149,9 +121,9 @@ mail_password: <your_password>
    #+END_SRC
    コマンドが成功すれば，funnelで指定した予定共有が行われる．
 
-*** Automatic execution of funnel
-    `server_test.sh`を用いることで，カレンダの更新に合わせて自動でfunnelを適用できる．
-    `server_test.sh`は以下のように用いる．
+** Automatic execution of funnel
+    =server_test.sh= を用いることで，カレンダの更新に合わせて自動でfunnelを適用できる．
+    =server_test.sh= は以下のように用いる．
 
     #+BEGIN_SRC sh
  $ chmod +x server_test.sh
@@ -159,3 +131,89 @@ mail_password: <your_password>
  $ ./server_test.sh -ep CALENDAR_ID
     #+END_SRC
     このプログラムを実行することで，CALENDAR_IDで指定したカレンダについて，予定の更新があれば，更新された予定にfunnelを適用できる．
+
+* For Developers
+goohubのディレクトリ構成を以下に示す．
+#+BEGIN_SRC sh
+.
+├── Gemfile
+├── Gemfile.lock
+├── LICENSE.txt
+├── README.org
+├── Rakefile
+├── attic
+│   ├── er.png
+│   └── er.uml
+├── bin
+│   ├── console
+│   └── setup
+├── db
+├── exe
+│   └── goohub
+├── goohub.gemspec
+├── lib
+│   ├── goohub
+│   │   ├── action.rb
+│   │   ├── client.rb
+│   │   ├── command
+│   │   ├── command.rb
+│   │   ├── config.rb
+│   │   ├── datastore
+│   │   ├── datastore.rb
+│   │   ├── date_frame.rb
+│   │   ├── expression.rb
+│   │   ├── filter.rb
+│   │   ├── funnel.rb
+│   │   ├── outlet.rb
+│   │   ├── parser.rb
+│   │   ├── resource
+│   │   ├── resource.rb
+│   │   ├── templates
+│   │   └── version.rb
+│   └── goohub.rb
+├── server_test.sh
+├── settings.yml.sample
+├── spec
+│   ├── goohub_spec.rb
+│   └── spec_helper.rb
+├── tests
+│   ├── action_test.sh
+│   ├── dsl
+│   │   ├── dsl_test.rb
+│   │   ├── expression.rb
+│   │   └── parser.rb
+│   ├── filter_test.sh
+│   └── server_test.sh
+#+END_SRC
+
+各ファイルやディレクトリの説明を以下に示す．
+| ディレクトリ/ファイル名 | 説明                                                               |
+|-------------------------+--------------------------------------------------------------------|
+| Gemfile                 | gemの一覧                                                          |
+| Gemfile.lock            | 依存関係もすべて含めたgemの一覧                                    |
+| LICENSE.txt             | ライセンスに関する文書                                             |
+| READEM.org              | このファイル                                                       |
+| Rakefile                | Rakeの処理をかいたファイル                                         |
+| attic/                  | 雑多なファイル(現在はER図)置き場                                   |
+| db/                     | goohubのDB(json形式)置き場                                         |
+| exe/                    | 実行ファイル置き場                                                 |
+| goohub.gemspec          | gem goohub に関する情報が書かれたファイル                          |
+| lib/                    | goohubのライブラリ置き場，クラス定義や，コマンドに関する記述はここ |
+| server_test.sh          | goohubをサーバ化するスクリプト                                     |
+| settings.yml.sample     | 設定ファイルのサンプル                                             |
+| tests/                  | テスト用のスクリプト置き場                                                      |
+
+開発者は，基本的に， =lib= 以下に，クラスやコマンドを追記する形で開発すると考えられる．
+いかに， =lib= 以下の詳細な説明を示す．
+
+| ディレクトリ/ファイル名 | 説明                                                                   |
+|-------------------------+------------------------------------------------------------------------|
+| lib/goohub.rb           | クラスのloadを行う，クラスを追加した場合は，このファイルを更新すること |
+| lib/goohub/             | クラスやコマンドの定義がされたファイル置き場                           |
+| lib/goohub/*.rb         | クラスの定義がされたファイル                                           |
+| lib/goohub/command/     | コマンドの定義がされたファイル置き場                                   |
+| lib/goohub/datastore/   | DBに関するクラスの定義がされたファイル置き場                           |
+| lib/goohub/resource/    | resource(calendar, event)の定義がされたファイル置き場                  |
+| lib/goohub/templetes/   | 設定ファイルのテンプレートの定義がされたファイル置き場                 |
+
+また，各コマンドにおいて，Google カレンダーとの認証を行なったオブジェクトは， =@client= なので，これを利用すると，簡単に Googel Calendar API を利用できる．
