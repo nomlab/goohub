@@ -56,7 +56,6 @@ goohubは，Google Calendarとの認証を行い，予定の取得や送信を�
 | mail_address               | 任意(予定の共有先でメールアドレスを指定する場合は必須) | アクションで予定を共有したいメールアドレス                                   |
 | mail_password              | 任意(予定の共有先でメールアドレスを指定する場合は必須) | アクションで予定を共有したいメールアドレスのパスワード                                                      |
 
-
 * Usage
 | Command Name                                        | Description                                                                                      |
 |-----------------------------------------------------+--------------------------------------------------------------------------------------------------|
@@ -132,6 +131,10 @@ DSLの文法は，[[https://github.com/kjtbw/goohub/wiki/%E3%83%A6%E3%83%BC%E3%8
     #+END_SRC
     このプログラムを実行することで，CALENDAR_IDで指定したカレンダについて，予定の更新があれば，更新された予定にfunnelを適用できる．
 
+* About GUI
+goohubの操作をGUIで行うためのシステムとして，goohub-guiがある．
+goohub-guiを利用することで，ルール(funnel, filter, action, outlet)の作成，ルールの閲覧，カレンダの閲覧をGUI から行える．
+goohub-guiの詳細について，[[https://github.com/kjtbw/goohub-gui][goohub-guiのREADME]] に示す．
 * For Developers
 goohubのディレクトリ構成を以下に示す．
 #+BEGIN_SRC sh
