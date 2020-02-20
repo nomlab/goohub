@@ -8,6 +8,14 @@ goohubは，Google Calendarとの認証を行い，予定の取得や送信を�
 + Ruby 2.1.5 ~
 + bundler 1.15.14 ~
 
+Rubyとbundlerのインストールについては，以下を参考にすること．
++ [[https://www.ruby-lang.org/ja/documentation/installation/][Rubyのインストール方法]]
++ bundler のインストール方法
+#+BEGIN_SRC sh
+$ gem install bundler
+$ bundler -v # check bundler version
+#+END_SRC
+
 * Installation and Setup
 1. Clone code
  #+BEGIN_SRC sh
