@@ -49,8 +49,16 @@ LONGDESC
     e.summary = event.summary
     e.location = event.location
     e.description = event.description
-    e.dtstart = event.start.date_time
-    e.dtend = event.end.date_time
+    if event.start.date_time
+      e.dtstart = event.start.date_time
+    else
+      e.start = event.start.date
+    end
+    if event.start.date_time
+      e.dtend = event.end.date_time
+    else
+      e.end = event.end.date
+    end
     return e
   end
 end# class GoohubCLI
