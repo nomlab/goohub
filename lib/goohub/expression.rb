@@ -268,7 +268,9 @@ module Goohub
         @sentence_items["description"] = event.description
         @sentence_items["id"] =          event.id
         @sentence_items["start_time"] =  event.dtstart
+        @sentence_items["start_date"] =  event.start
         @sentence_items["end_time"] =    event.dtend
+        @sentence_items["end_date"] =    event.end
         @sentence_items["location"] =    event.location
         @sentence_items
       end
@@ -282,17 +284,34 @@ module Goohub
       end
 
       def convert_google_event
-        event =
-          Google::Apis::CalendarV3::Event.new({
-                                                summary: @sentence_items["summary"],
-                                                start: {
-                                                  date_time: @sentence_items["start_time"],
-                                                },
-                                                end: {
-                                                  date_time: @sentence_items["end_time"],
-                                                },
-                                                location: @sentence_items["location"]
-                                              })
+        if @sentence_items["start_time"]&&@sentence_items["end_time"]
+          event =
+            Google::Apis::CalendarV3::Event.new({
+                                                  summary: @sentence_items["summary"],
+                                                  start: {
+                                                    date_time: @sentence_items["start_time"],
+                                                  },
+                                                  end: {
+                                                    date_time: @sentence_items["end_time"],
+                                                  },
+                                                  location: @sentence_items["location"]
+                                                })
+        elsif @sentence_items["start_date"]&&@sentence_items["end_date"]
+          event =
+            Google::Apis::CalendarV3::Event.new({
+                                                  summary: @sentence_items["summary"],
+                                                  start: {
+                                                    date: @sentence_items["start_date"]
+                                                  },
+                                                  end: {
+                                                    date: @sentence_items["end_date"]
+                                                  },
+                                                  location: @sentence_items["location"]
+                                                })
+        else
+          puts("Error: Event Paramater")
+          exit
+        end
         event
       end
 
