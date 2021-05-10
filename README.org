@@ -5,7 +5,7 @@ goohubは，Google Calendarとの認証を行い，予定の取得や送信を�
 また，Google Calendar上の予定をユーザが指定したルールによって予定を書き換え，特定のメディア(Google Calendar, Slack, メール)に送信する機能をもつ．
 
 * Requirements
-+ Ruby 2.5.1 ~
++ Ruby 2.7.0 ~
 + bundler 2.1.2 ~
 
 Rubyとbundlerのインストールについては，以下を参考にすること．
