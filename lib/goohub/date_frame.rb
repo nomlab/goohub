@@ -3,6 +3,7 @@ module Goohub
     class Base
       def initialize(start_date)
         year_month = start_date.split('-')
+        year_month[1] = '01' if year_month[1] == nil
         @start_date = DateTime.new(year_month[0].to_i, year_month[1].to_i)
         rewind
       end

@@ -12,7 +12,8 @@ class GoohubCLI < Clian::Cli
     host: "localhost", port: "6379", name: "0" is set by default.
   LONGDESC
 
-  def events(calendar_id, start_month, end_month="#{Date.today.year}-#{Date.today.month}")
+  #def events(calendar_id, start_month, end_month="#{Date.today.year}-#{Date.today.month}")
+  def events(calendar_id, start_month, end_month="#{Date.today.year}-12")
     start = Goohub::DateFrame::Monthly.new(start_month)
     output, host, port, db_name = options[:output].split(":")
 
@@ -34,6 +35,25 @@ class GoohubCLI < Clian::Cli
     end
     puts "----------------------------"
 
+    endm = Goohub::DateFrame::Monthly.new(end_month)
+    min = start.peek.to_s
+    max = (endm.peek.next_month - Rational(1, 24 * 60 * 60)).to_s
+    params = [calendar_id, start.peek.year.to_s, 0.to_s]
+    raw_resource = client.list_events(params[0], time_max: max, time_min: min, single_events: true)
+    events = Goohub::Resource::EventCollection.new(raw_resource)
+    
+    if output == "stdout"
+      events.each do |item|
+        puts item.summary.to_s + "(" + item.id.to_s + ")"
+      end
+    else
+      puts "Store events to " + output
+      print "Status: "
+      kvs = Goohub::DataStore.create(output.intern, {:host => host, :port => port.to_i, :db => db_name.to_i})
+      puts kvs.store(params.join('-'), events.to_json)
+    end
+    
+=begin
     start.each_to(end_month) do |frame|
 
       min = frame.to_s
@@ -54,5 +74,6 @@ class GoohubCLI < Clian::Cli
         puts kvs.store(params.join('-'), events.to_json)
       end
     end
+=end
   end
 end
