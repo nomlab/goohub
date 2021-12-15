@@ -201,7 +201,6 @@ class GoohubCLI < Clian::Cli
       end# post /funnels
       
       post '/blockly' do
-      	puts "testtesttest!!!"
         data = JSON.parse(request.body.read)
         kvs = Goohub::DataStore.create(:file)
 
@@ -221,12 +220,33 @@ class GoohubCLI < Clian::Cli
         kvs.store("blocks", blocks.to_json)
         
       end# post /blockly
+
+      post '/del_block' do
+        data = JSON.parse(request.body.read)
+        kvs = Goohub::DataStore.create(:file)
+
+        blocks = []
+        blocks = JSON.parse(kvs.load("blocks")) if kvs.load("blocks")
+        #block = {
+        #  "name" => "#{data['name']}",
+        #  "block" => "#{data['block']}",
+        #  "code" => "#{data['code']}"
+        #}
+        block = {"name" => "#{data['name']}"}
+        blocks.each_with_index{ |v, i|
+          if v["name"] == block["name"]
+            blocks.delete_at(i);
+          end
+        }
+        kvs.store("blocks", blocks.to_json)
+        
+      end# post /del_block
       
       post '/info/exec_funnel' do
         data = JSON.parse(request.body.read)
         settings_file_path = "settings.yml"
         config = YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
-        config["exec_funnel"] = data
+        config["enabled_funnel"] = data
         YAML.dump(config, File.open(settings_file_path, 'w'))
       end
       
