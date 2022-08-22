@@ -249,6 +249,52 @@ class GoohubCLI < Clian::Cli
         config["enabled_funnel"] = data
         YAML.dump(config, File.open(settings_file_path, 'w'))
       end
+
+      post '/creatcalendar' do
+        data = JSON.parse(request.body.read)
+        kvs = Goohub::DataStore.create(:file)
+
+        calendar = {
+          "access_role" => "#{data['access_role']}",
+          "id" => "#{data['id']}",
+          "summary" => "#{data['summary']}",
+          "time_zone" => "#{data['time_zone']}"
+        }
+        puts data
+
+        calendars = JSON.parse(kvs.load("calendars"))
+        puts calendars['items']
+        calendars['items'] << calendar
+
+        kvs.store("calendars", calendars.to_json)
+        item = {"access_role"=>"reader","default_reminders"=>[],"items"=>[],"kind"=>"calendar#events","next_sync_token"=>"CPDm1vCvsPQCEPDm1vCvsPQCGAQggeSZwwE=","summary"=>"New","time_zone"=>"Asia/Tokyo"}
+        kvs.store("#{data['id']}-2021-0",item.to_json)
+      end
+
+      post '/insertevents' do
+        data = JSON.parse(request.body.read)
+        kvs = Goohub::DataStore.create(:file)
+        cal_id = data['calendar']
+        puts cal_id
+        event = data['events']#['items']
+        puts event
+        calendar = JSON.parse(kvs.load("#{cal_id}-2022-0"))
+        puts calendar
+        p '----------------------------------------------------------------------------'
+        puts calendar['items']
+        calendar['items'] << event
+        kvs.store("#{cal_id}-2022-0",calendar.to_json)
+        p '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+        min = DateTime.new(Date.today.year, 1, 1).to_s
+        raw_resource = client.list_events(cal_id,time_min: min)
+        events = Goohub::Resource::EventCollection.new(raw_resource)
+        p '----------------------------------------------------------------------------'
+        events.each do |e|
+          p e
+          p '----------------------------------------------------------------------------'
+        end
+
+      end
       
       post '/test' do
       	puts "testtesttest!!!"

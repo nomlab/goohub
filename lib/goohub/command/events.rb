@@ -14,7 +14,11 @@ class GoohubCLI < Clian::Cli
 
   #def events(calendar_id, start_month, end_month="#{Date.today.year}-#{Date.today.month}")
   def events(calendar_id, start_month, end_month="#{Date.today.year}-12")
-    start = Goohub::DateFrame::Monthly.new(start_month)
+    start_year_month = start_month.split('-')
+    start_year_month[1] = '01' if start_year_month[1] == nil
+    end_year_month = end_month.split('-')
+    end_year_month[1] = '12' if end_year_month[1] == nil
+    #start = Goohub::DateFrame::Monthly.new(start_month)
     output, host, port, db_name = options[:output].split(":")
 
     puts "output: #{output}"
@@ -35,10 +39,10 @@ class GoohubCLI < Clian::Cli
     end
     puts "----------------------------"
 
-    endm = Goohub::DateFrame::Monthly.new(end_month)
-    min = start.peek.to_s
-    max = (endm.peek.next_month - Rational(1, 24 * 60 * 60)).to_s
-    params = [calendar_id, start.peek.year.to_s, 0.to_s]
+    #endm = Goohub::DateFrame::Monthly.new(end_month)
+    min = DateTime.new(start_year_month[0].to_i, start_year_month[1].to_i, 1).to_s
+    max = (DateTime.new(end_year_month[0].to_i, end_year_month[1].to_i, 1).next_month - Rational(1, 24 * 60 * 60)).to_s
+    params = [calendar_id, start_year_month[0].to_s, 0.to_s]
     raw_resource = client.list_events(params[0], time_max: max, time_min: min, single_events: true)
     events = Goohub::Resource::EventCollection.new(raw_resource)
     

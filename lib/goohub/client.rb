@@ -10,7 +10,9 @@ module Goohub
     :list_calendar_lists,
     :list_events,
     :get_event,
-    :insert_event
+    :insert_event,
+    :insert_calendar,
+    :update_event
 
     def initialize(config, app_name)
       authorizer = Clian::Authorizer.new(config.client_id,
