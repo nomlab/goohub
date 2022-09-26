@@ -2,7 +2,7 @@
 db_path: <goohub_db_file_path>
 
 # If you make funnel, and you want to use funnel, you need `exec_funnel`
-exec_funnel:
+enabled_funnel:
     - <your_funnel_name>
 
 # If you use Slack in outlet informant, you need `slack_incoming_webhook_url`
@@ -12,3 +12,9 @@ slack_incoming_webhook_url: https://XXXXXXXXXX
 # If you use mail in outlet informant, you need `mail_address` and `mail_password`
 mail_address: <your_mail_address>
 mail_password: <your_password>
+
+# If you use merge_calendar command, you need `merge_calendar_id` and `source_calendar_id`
+merge_calendar_id: <merge_calendar_id>
+source_calendar_id:
+    - <source_calendar_1_id>
+    - <source_calendar_2_id>
