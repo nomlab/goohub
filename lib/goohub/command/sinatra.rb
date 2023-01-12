@@ -11,6 +11,7 @@ class GoohubCLI < Clian::Cli
   desc "sinatra", "Work sinatra server in localhost:4567"
 
   def sinatra
+    myclient = client
     controller = Sinatra.new do
       enable :logging
 
@@ -42,7 +43,7 @@ class GoohubCLI < Clian::Cli
 
       get '/info/calendars' do
         kvs = Goohub::DataStore.create(:file)
-        calendars = JSON.parse(kvs.load("calendars"))
+        calendars = JSON.parse(kvs.load("calendars.json"))
         return json calendars
       end
 
@@ -124,7 +125,7 @@ class GoohubCLI < Clian::Cli
       
       get '/blocks/:name?' do
         kvs = Goohub::DataStore.create(:file)
-        blocks = JSON.parse(kvs.load("blocks"))
+        blocks = JSON.parse(kvs.load("blocks.json"))
         return json blocks if !params["name"]
         blocks.each { |f|
           return json  f if f["name"][params["name"]]
@@ -205,11 +206,12 @@ class GoohubCLI < Clian::Cli
         kvs = Goohub::DataStore.create(:file)
 
         blocks = []
-        blocks = JSON.parse(kvs.load("blocks")) if kvs.load("blocks")
+        blocks = JSON.parse(kvs.load("blocks.json")) if kvs.load("blocks.json")
         block = {
           "name" => "#{data['name']}",
           "block" => "#{data['block']}",
-          "code" => "#{data['code']}"
+          "code" => "#{data['code']}",
+          "ruby_code" => "#{data['ruby_code']}"
         }
         blocks.each_with_index{ |v, i|
           if v["name"] == block["name"]
@@ -217,7 +219,7 @@ class GoohubCLI < Clian::Cli
           end
         }
         blocks << block
-        kvs.store("blocks", blocks.to_json)
+        kvs.store("blocks.json", blocks.to_json)
         
       end# post /blockly
 
@@ -226,7 +228,7 @@ class GoohubCLI < Clian::Cli
         kvs = Goohub::DataStore.create(:file)
 
         blocks = []
-        blocks = JSON.parse(kvs.load("blocks")) if kvs.load("blocks")
+        blocks = JSON.parse(kvs.load("blocks.json")) if kvs.load("blocks.json")
         #block = {
         #  "name" => "#{data['name']}",
         #  "block" => "#{data['block']}",
@@ -238,7 +240,7 @@ class GoohubCLI < Clian::Cli
             blocks.delete_at(i);
           end
         }
-        kvs.store("blocks", blocks.to_json)
+        kvs.store("blocks.json", blocks.to_json)
         
       end# post /del_block
       
@@ -279,14 +281,22 @@ class GoohubCLI < Clian::Cli
         event = data['events']#['items']
         puts event
         calendar = JSON.parse(kvs.load("#{cal_id}-2022-0"))
-        puts calendar
+        #puts calendar
         p '----------------------------------------------------------------------------'
-        puts calendar['items']
+        puts calendar['items'].map {|e| e['id']}
+        puts calendar['items'].map {|e| e['id']}.include?(event['id'])
+        puts event['id']
+        calendar['items'].each_with_index{ |v, i|
+          calendar['items'].delete_at(i) if v["id"] == event['id']
+        }
         calendar['items'] << event
         kvs.store("#{cal_id}-2022-0",calendar.to_json)
         p '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+        p Google::Apis::CalendarV3::Event.new(event)
+        #myclient.insert_event(cal_id, event)
+        p '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
         min = DateTime.new(Date.today.year, 1, 1).to_s
-        raw_resource = client.list_events(cal_id,time_min: min)
+        raw_resource = myclient.list_events(cal_id,time_min: min)
         events = Goohub::Resource::EventCollection.new(raw_resource)
         p '----------------------------------------------------------------------------'
         events.each do |e|

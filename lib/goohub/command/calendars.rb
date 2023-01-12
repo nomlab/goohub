@@ -21,13 +21,13 @@ class GoohubCLI < Clian::Cli
     when "file"
       puts "Store calendars_list to " + output
       kvs = Goohub::DataStore.create(:file)
-      puts kvs.store("calendars", calendars.to_json)
+      puts kvs.store("calendars.json", calendars.to_json)
     else
       # for redis
       puts "Store calendars_list to " + output
       print "Status: "
       kvs = Goohub::DataStore.create(output.intern, {:host => host, :port => port.to_i, :db => db_name.to_i})
-      puts kvs.store("calendars", calendars.to_json)
+      puts kvs.store("calendars.json", calendars.to_json)
     end
   end
 end

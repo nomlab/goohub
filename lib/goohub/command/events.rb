@@ -54,7 +54,7 @@ class GoohubCLI < Clian::Cli
       puts "Store events to " + output
       print "Status: "
       kvs = Goohub::DataStore.create(output.intern, {:host => host, :port => port.to_i, :db => db_name.to_i})
-      puts kvs.store(params.join('-'), events.to_json)
+      puts kvs.store(params.join('-') + '.json', events.to_json)
     end
     
 =begin
