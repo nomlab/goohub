@@ -34,11 +34,17 @@ class GoohubCLI < Clian::Cli
         200
       end
 
+      set :public_folder, 'public'
+
       ################################################################
       # GET
       ################################################################
       get '/' do
         "Hello! This is goohub server"
+      end
+
+      get '/clockly*' do
+        redirect '/index.html'
       end
 
       get '/info/calendars' do
@@ -280,7 +286,7 @@ class GoohubCLI < Clian::Cli
         puts cal_id
         event = data['events']#['items']
         puts event
-        calendar = JSON.parse(kvs.load("#{cal_id}-2022-0"))
+        calendar = JSON.parse(kvs.load("#{cal_id}-2022-0.json"))
         #puts calendar
         p '----------------------------------------------------------------------------'
         puts calendar['items'].map {|e| e['id']}
@@ -290,7 +296,7 @@ class GoohubCLI < Clian::Cli
           calendar['items'].delete_at(i) if v["id"] == event['id']
         }
         calendar['items'] << event
-        kvs.store("#{cal_id}-2022-0",calendar.to_json)
+        kvs.store("#{cal_id}-2022-0.json",calendar.to_json)
         p '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
         p Google::Apis::CalendarV3::Event.new(event)
         #myclient.insert_event(cal_id, event)
