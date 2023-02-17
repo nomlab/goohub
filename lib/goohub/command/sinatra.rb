@@ -36,6 +36,8 @@ class GoohubCLI < Clian::Cli
 
       set :public_folder, 'public'
 
+      set :environment, :production
+
       ################################################################
       # GET
       ################################################################
@@ -283,33 +285,34 @@ class GoohubCLI < Clian::Cli
         data = JSON.parse(request.body.read)
         kvs = Goohub::DataStore.create(:file)
         cal_id = data['calendar']
-        puts cal_id
         event = data['events']#['items']
         puts event
         calendar = JSON.parse(kvs.load("#{cal_id}-2022-0.json"))
-        #puts calendar
-        p '----------------------------------------------------------------------------'
-        puts calendar['items'].map {|e| e['id']}
-        puts calendar['items'].map {|e| e['id']}.include?(event['id'])
-        puts event['id']
         calendar['items'].each_with_index{ |v, i|
           calendar['items'].delete_at(i) if v["id"] == event['id']
         }
         calendar['items'] << event
         kvs.store("#{cal_id}-2022-0.json",calendar.to_json)
-        p '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
-        p Google::Apis::CalendarV3::Event.new(event)
-        #myclient.insert_event(cal_id, event)
-        p '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
-        min = DateTime.new(Date.today.year, 1, 1).to_s
-        raw_resource = myclient.list_events(cal_id,time_min: min)
-        events = Goohub::Resource::EventCollection.new(raw_resource)
-        p '----------------------------------------------------------------------------'
-        events.each do |e|
-          p e
-          p '----------------------------------------------------------------------------'
+        google_event = Google::Apis::CalendarV3::Event.new({
+          id: event["id"],
+          summary: event["summary"],
+          start: {
+            date: event["start"]["date"],
+            date_time: event["start"]["date_time"]
+          },
+          end: {
+            date: event["end"]["date"],
+            date_time: event["end"]["date_time"]
+          }
+        })
+        p google_event
+        raw_resource = myclient.list_events(cal_id, single_events: true)
+        event_id_list = raw_resource.items.map{|e| e.id}
+        if event_id_list.include?(event["id"])
+          myclient.update_event(cal_id, event["id"], google_event)
+        else
+          myclient.insert_event(cal_id, google_event)
         end
-
       end
       
       post '/test' do
