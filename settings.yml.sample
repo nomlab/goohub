@@ -18,3 +18,6 @@ merge_calendar_id: <merge_calendar_id>
 source_calendar_id:
     - <source_calendar_1_id>
     - <source_calendar_2_id>
+
+writable_calendar_id:
+- 

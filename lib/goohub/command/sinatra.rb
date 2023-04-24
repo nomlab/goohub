@@ -46,7 +46,9 @@ class GoohubCLI < Clian::Cli
       end
 
       get '/clockly*' do
-        redirect '/index.html'
+        #redirect '/index.html'
+        content_type 'text/html'
+        return File.read('../../public/index.html')
       end
 
       get '/info/calendars' do
@@ -138,6 +140,11 @@ class GoohubCLI < Clian::Cli
         blocks.each { |f|
           return json  f if f["name"][params["name"]]
         }
+      end
+
+      get '/getevents/:calendar_id' do
+        raw_resource = myclient.list_events(params["calendar_id"], single_events: true)
+        return raw_resource.to_h.to_json
       end
 
       ################################################################
@@ -286,13 +293,16 @@ class GoohubCLI < Clian::Cli
         kvs = Goohub::DataStore.create(:file)
         cal_id = data['calendar']
         event = data['events']#['items']
-        puts event
-        calendar = JSON.parse(kvs.load("#{cal_id}-2022-0.json"))
-        calendar['items'].each_with_index{ |v, i|
-          calendar['items'].delete_at(i) if v["id"] == event['id']
-        }
-        calendar['items'] << event
-        kvs.store("#{cal_id}-2022-0.json",calendar.to_json)
+        puts "calendar ID: #{cal_id}"
+        puts "event: #{event}"
+        if kvs.load("#{cal_id}-2022-0.json")
+          calendar = JSON.parse(kvs.load("#{cal_id}-2022-0.json"))
+          calendar['items'].each_with_index{ |v, i|
+           calendar['items'].delete_at(i) if v["id"] == event['id']
+          }
+          calendar['items'] << event
+          kvs.store("#{cal_id}-2022-0.json",calendar.to_json)
+        end
         google_event = Google::Apis::CalendarV3::Event.new({
           id: event["id"],
           summary: event["summary"],
@@ -306,12 +316,21 @@ class GoohubCLI < Clian::Cli
           }
         })
         p google_event
-        raw_resource = myclient.list_events(cal_id, single_events: true)
-        event_id_list = raw_resource.items.map{|e| e.id}
-        if event_id_list.include?(event["id"])
-          myclient.update_event(cal_id, event["id"], google_event)
-        else
-          myclient.insert_event(cal_id, google_event)
+        
+        settings_file_path = "settings.yml"
+        config = YAML.load_file(settings_file_path) if File.exist?(settings_file_path)
+        writable_calendar_id_list = config["writable_calendar_id"]
+
+        if writable_calendar_id_list.include?(cal_id)
+          raw_resource = myclient.list_events(cal_id, single_events: true)
+          event_id_list = raw_resource.items.map{|e| e.id}
+          if event_id_list.include?(event["id"])
+            p "Update"
+            myclient.update_event(cal_id, event["id"], google_event)
+          else
+            p "Insert"
+            myclient.insert_event(cal_id, google_event)
+          end
         end
       end
       
