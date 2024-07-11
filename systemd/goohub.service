@@ -1,0 +1,14 @@
+[Unit]
+Description=goohub: Automatic calendar merge
+
+[Service]
+# Change path to suit your environment
+WorkingDirectory=/home/nomlab/goohub
+ExecStart=/home/nomlab/goohub/exe/auto_merge.sh -ep
+# Change user who owns this repository
+User=nomlab
+Type=simple
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
